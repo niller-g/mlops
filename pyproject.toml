@@ -6,9 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "mlops"
 version = "0.0.1"
 description = "mlops"
-authors = [
-  { name = "Andreas, Christian, Niels", email = "your@email.com" },
-]
+authors = [{ name = "Andreas, Christian, Niels", email = "your@email.com" }]
 
 keywords = ["machine learning", "MLOps"]
 classifiers = [
@@ -20,10 +18,10 @@ requires-python = ">=3.11"
 dynamic = ["dependencies", "optional-dependencies"]
 
 [tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+dependencies = { file = ["requirements.txt"] }
 
 [tool.setuptools.dynamic.optional-dependencies]
-dev = {file = ['requirements_dev.txt']}
+dev = { file = ['requirements_dev.txt'] }
 
 [tool.ruff]
 line-length = 120
