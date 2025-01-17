@@ -1,0 +1,10 @@
+defaults:
+  - _self_
+  - train: train
+
+project_name: "my_medical_distilgpt2_project"
+env_name: "my_mlops_env"
+
+paths:
+  data_dir: ${hydra:runtime.cwd}/data
+  models_dir: ${hydra:runtime.cwd}/models

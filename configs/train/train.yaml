@@ -1,0 +1,13 @@
+# Training hyperparameters for DistilGPT-2 (Quick test configuration)
+defaults:
+  - _self_
+
+batch_size: 2
+lr: 5e-5
+max_epochs: 1
+eval_steps: 1  # Evaluate after each step
+max_samples: 4  # Use only 4 examples for super quick testing
+
+wandb:
+  project: "my_medical_lm"
+  entity: null  # your wandb username/org

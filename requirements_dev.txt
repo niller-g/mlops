@@ -1,3 +1,7 @@
+pytest-cov
+flake8
+dvc
+pytorch-lightning==2.0.0
 # commands
 invoke==2.2.0
 
