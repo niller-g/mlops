@@ -1,29 +1,60 @@
+import os
+import re
+import logging
 from pathlib import Path
 
-import typer
-from torch.utils.data import Dataset
+import datasets
+
+logging.basicConfig(level=logging.INFO)
 
 
-class MyDataset(Dataset):
-    """My custom dataset."""
+def download_data(output_dir: str = "data/raw"):
+    """
+    Download the medical questions dataset and save locally.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    logging.info(f"Downloading dataset to {output_dir}...")
 
-    def __init__(self, raw_data_path: Path) -> None:
-        self.data_path = raw_data_path
+    # Using medical questions dataset from HF
+    dataset = datasets.load_dataset("medical_questions_pairs", split="train")
 
-    def __len__(self) -> int:
-        """Return the length of the dataset."""
+    # Save it as a dataset
+    raw_path = Path(output_dir) / "medical_questions_raw"
+    dataset.save_to_disk(str(raw_path))
+    logging.info(f"Dataset saved to {raw_path}")
 
-    def __getitem__(self, index: int):
-        """Return a given sample from the dataset."""
+    return str(raw_path)
 
-    def preprocess(self, output_folder: Path) -> None:
-        """Preprocess the raw data and save it to the output folder."""
 
-def preprocess(raw_data_path: Path, output_folder: Path) -> None:
-    print("Preprocessing data...")
-    dataset = MyDataset(raw_data_path)
-    dataset.preprocess(output_folder)
+def preprocess_data(input_path: str, output_dir: str = "data/processed"):
+    """Clean up text, remove PII if needed, etc."""
+    os.makedirs(output_dir, exist_ok=True)
+    logging.info(f"Reading raw data from {input_path}...")
+
+    # Load the dataset
+    dataset = datasets.load_from_disk(input_path)
+
+    def clean_text(ex):
+        # Combine question pairs into a single text
+        text = f"Question 1: {ex['question_1']} Answer: {ex['question_2']}"
+        # Simple cleaning:
+        text = text.lower()
+        text = re.sub(r"[\r\n]+", " ", text)
+        text = re.sub(r"\s+", " ", text)
+        return {"clean_text": text.strip()}
+
+    # Create new dataset with only the clean text
+    processed_dataset = dataset.map(clean_text)
+
+    # Save processed dataset
+    processed_path = Path(output_dir) / "medical_questions_processed"
+    processed_dataset.save_to_disk(str(processed_path))
+    logging.info(f"Processed dataset saved to {processed_path}")
+
+    return str(processed_path)
 
 
 if __name__ == "__main__":
-    typer.run(preprocess)
+    # Quick test
+    raw = download_data()
+    processed = preprocess_data(raw)
