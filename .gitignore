@@ -181,3 +181,4 @@ data/
 
 # TODO: put in storage instead
 models/
+/data
