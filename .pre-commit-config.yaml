@@ -5,23 +5,16 @@ repos:
   rev: v4.4.0
   hooks:
     - id: trailing-whitespace
-      exclude: ^(\.venv/|\.env/|venv/|env/|build/|dist/|\.pytest_cache/|\.coverage|\.tox/|\.git/|__pycache__/)
     - id: end-of-file-fixer
-      exclude: ^(\.venv/|\.env/|venv/|env/|build/|dist/|\.pytest_cache/|\.coverage|\.tox/|\.git/|__pycache__/)
     - id: check-yaml
-      exclude: ^(\.venv/|\.env/|venv/|env/|build/|dist/|\.pytest_cache/|\.coverage|\.tox/|\.git/|__pycache__/)
     - id: check-json
-      exclude: ^(\.venv/|\.env/|venv/|env/|build/|dist/|\.pytest_cache/|\.coverage|\.tox/|\.git/|__pycache__/)
     - id: check-added-large-files
-      exclude: ^(\.venv/|\.env/|venv/|env/|build/|dist/|\.pytest_cache/|\.coverage|\.tox/|\.git/|__pycache__/)
 
 - repo: https://github.com/psf/black
   rev: 23.3.0
   hooks:
     - id: black
-      exclude: ^(\.venv/|\.env/|venv/|env/|build/|dist/|\.pytest_cache/|\.coverage|\.tox/|\.git/|__pycache__/)
 - repo: https://github.com/PyCQA/flake8
   rev: 6.0.0
   hooks:
     - id: flake8
-      exclude: ^(\.venv/|\.env/|venv/|env/|build/|dist/|\.pytest_cache/|\.coverage|\.tox/|\.git/|__pycache__/)
