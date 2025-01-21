@@ -2,13 +2,6 @@ outs:
 - hash: md5
   path: data
   files:
-  - relpath: processed/.gitkeep
-    md5: d41d8cd98f00b204e9800998ecf8427e
-    size: 0
-    cloud:
-      remote_storage:
-        etag: 08f1beb0daeb868b031001
-        version_id: '1737463442448241'
   - relpath: processed/medical_questions_processed/data-00000-of-00001.arrow
     md5: 36dfa81c9d3627b5a4392f66f433b3e9
     size: 1420048
@@ -30,13 +23,6 @@ outs:
       remote_storage:
         etag: 08d1a5eefaff868b031001
         version_id: '1737468879278801'
-  - relpath: raw/.gitkeep
-    md5: d41d8cd98f00b204e9800998ecf8427e
-    size: 0
-    cloud:
-      remote_storage:
-        etag: 08bba39ddaeb868b031001
-        version_id: '1737463442133435'
   - relpath: raw/medical_questions_raw/cache-dc5287d68e3922f5.arrow
     md5: a42e742ec946d2c19b251a1885088529
     size: 1420088
