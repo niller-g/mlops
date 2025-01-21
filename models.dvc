@@ -9,3 +9,27 @@ outs:
       remote_storage:
         etag: 0896dd8edaeb868b031001
         version_id: '1737463441895062'
+  - relpath: distilgpt2-finetuned-final/config.json
+    md5: a7baaaf3add9bdded2ab6b780064e3fe
+    size: 1056
+  - relpath: distilgpt2-finetuned-final/generation_config.json
+    md5: 6dedf35acfbaf03b7ca02ac1b176d5dd
+    size: 125
+  - relpath: distilgpt2-finetuned-final/merges.txt
+    md5: 75a37753dd7a28a2c5df80c28bf06e4e
+    size: 456318
+  - relpath: distilgpt2-finetuned-final/pytorch_model.bin
+    md5: 4506e9eecc356bc3b6f782dda58e319a
+    size: 482063893
+  - relpath: distilgpt2-finetuned-final/special_tokens_map.json
+    md5: 9bf1b7812903de3151b49554ff031bda
+    size: 137
+  - relpath: distilgpt2-finetuned-final/tokenizer.json
+    md5: 605260d6004354a3653f1fbc8c1527da
+    size: 3557957
+  - relpath: distilgpt2-finetuned-final/tokenizer_config.json
+    md5: cd66afe332badba243917a8626bbf1b3
+    size: 528
+  - relpath: distilgpt2-finetuned-final/vocab.json
+    md5: 22377f841debacb023848b3468ea3281
+    size: 798156
