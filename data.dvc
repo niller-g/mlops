@@ -1,6 +1,25 @@
 outs:
-- md5: c36c920311bc011fc337a7e31b83c6ef.dir
-  size: 8
-  nfiles: 3
-  hash: md5
+- hash: md5
   path: data
+  files:
+  - relpath: processed/.gitkeep
+    md5: d41d8cd98f00b204e9800998ecf8427e
+    size: 0
+    cloud:
+      remote_storage:
+        etag: 08f1beb0daeb868b031001
+        version_id: '1737463442448241'
+  - relpath: raw/.gitkeep
+    md5: d41d8cd98f00b204e9800998ecf8427e
+    size: 0
+    cloud:
+      remote_storage:
+        etag: 08bba39ddaeb868b031001
+        version_id: '1737463442133435'
+  - relpath: raw/mockeData.csv
+    md5: d98d43d31bb1c3b99e88ac903c683188
+    size: 8
+    cloud:
+      remote_storage:
+        etag: 0883a6afdaeb868b031001
+        version_id: '1737463442428675'
