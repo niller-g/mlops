@@ -12,24 +12,56 @@ outs:
   - relpath: distilgpt2-finetuned-final/config.json
     md5: a7baaaf3add9bdded2ab6b780064e3fe
     size: 1056
+    cloud:
+      remote_storage:
+        etag: 089ce3b08cac878b031001
+        version_id: '1737480727179676'
   - relpath: distilgpt2-finetuned-final/generation_config.json
     md5: 6dedf35acfbaf03b7ca02ac1b176d5dd
     size: 125
+    cloud:
+      remote_storage:
+        etag: 08eaa1f68bac878b031001
+        version_id: '1737480726221034'
   - relpath: distilgpt2-finetuned-final/merges.txt
     md5: 75a37753dd7a28a2c5df80c28bf06e4e
     size: 456318
+    cloud:
+      remote_storage:
+        etag: 08eb81b88cac878b031001
+        version_id: '1737480727298283'
   - relpath: distilgpt2-finetuned-final/pytorch_model.bin
     md5: 4506e9eecc356bc3b6f782dda58e319a
     size: 482063893
+    cloud:
+      remote_storage:
+        etag: 089ce4d499ac878b031001
+        version_id: '1737480755032604'
   - relpath: distilgpt2-finetuned-final/special_tokens_map.json
     md5: 9bf1b7812903de3151b49554ff031bda
     size: 137
+    cloud:
+      remote_storage:
+        etag: 08d998b18cac878b031001
+        version_id: '1737480727186521'
   - relpath: distilgpt2-finetuned-final/tokenizer.json
     md5: 605260d6004354a3653f1fbc8c1527da
     size: 3557957
+    cloud:
+      remote_storage:
+        etag: 08b7a9cf8cac878b031001
+        version_id: '1737480727680183'
   - relpath: distilgpt2-finetuned-final/tokenizer_config.json
     md5: cd66afe332badba243917a8626bbf1b3
     size: 528
+    cloud:
+      remote_storage:
+        etag: 08cfddb08cac878b031001
+        version_id: '1737480727178959'
   - relpath: distilgpt2-finetuned-final/vocab.json
     md5: 22377f841debacb023848b3468ea3281
     size: 798156
+    cloud:
+      remote_storage:
+        etag: 088bf0b58cac878b031001
+        version_id: '1737480727263243'

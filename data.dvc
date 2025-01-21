@@ -5,12 +5,24 @@ outs:
   - relpath: processed/medical_questions_processed/cache-07f96da83f48dbc7.arrow
     md5: 74e42684a5633244f3b08820eb44a058
     size: 6088
+    cloud:
+      remote_storage:
+        etag: 0899edb08cac878b031001
+        version_id: '1737480727180953'
   - relpath: processed/medical_questions_processed/cache-a6c71df728f0203d.arrow
     md5: de1f44c465dda4173fa70a5e83d845b2
     size: 25264
+    cloud:
+      remote_storage:
+        etag: 08b4a2b28cac878b031001
+        version_id: '1737480727204148'
   - relpath: processed/medical_questions_processed/cache-a80b90597bd4a313.arrow
     md5: 9f36724bfb5487540e5e537d154c1822
     size: 472
+    cloud:
+      remote_storage:
+        etag: 08ad99b18cac878b031001
+        version_id: '1737480727186605'
   - relpath: processed/medical_questions_processed/data-00000-of-00001.arrow
     md5: 36dfa81c9d3627b5a4392f66f433b3e9
     size: 1420048
