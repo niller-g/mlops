@@ -60,6 +60,14 @@ def docker_build(ctx: Context, progress: str = "plain") -> None:
         pty=not WINDOWS
     )
 
+@task
+def setup_data_version_controle(ctx: Context) -> None:
+    """If you do not have gcloud installed go to: https://cloud.google.com/sdk/docs/install"""
+    ctx.run("gcloud auth login", echo=True, pty=not WINDOWS)
+    ctx.run("gcloud auth application-default login", echo=True, pty=not WINDOWS)
+    ctx.run("dvc pull", echo=True, pty=not WINDOWS)
+
+
 # Documentation commands
 @task(dev_requirements)
 def build_docs(ctx: Context) -> None:
