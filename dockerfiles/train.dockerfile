@@ -8,11 +8,9 @@ RUN apt update && \
 COPY src src/
 COPY data/processed data/processed/
 COPY requirements.txt requirements.txt
-COPY requirements_dev.txt requirements_dev.txt
 COPY README.md README.md
 COPY pyproject.toml pyproject.toml
 
-RUN pip install .[dev] --no-cache-dir --verbose
-RUN pip install . --no-deps --no-cache-dir --verbose
+RUN --mount=type=cache,target=/root/.cache/pip pip install --no-cache-dir --default-timeout=100 --verbose .
 
 ENTRYPOINT ["python", "-u", "src/mlops/train.py"]
