@@ -12,7 +12,7 @@ from transformers import (
 from datasets import load_from_disk
 import wandb
 
-from .model import DistilGPT2Model
+from model import DistilGPT2Model
 
 logging.basicConfig(level=logging.INFO)
 
