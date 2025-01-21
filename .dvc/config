@@ -1,0 +1,5 @@
+[core]
+    remote = remote_storage
+['remote "remote_storage"']
+    url = gs://mlops-grp-43-2025/
+    version_aware = true
