@@ -13,10 +13,10 @@ COPY src src/
 
 
 COPY secrets/api_key.json default.json
-COPY .dvc/config .dvc/config
 RUN dvc init --no-scm
-COPY models.dvc models.dvc
+COPY .dvc/config .dvc/config
 RUN dvc config core.no_scm true
+COPY models.dvc models.dvc
 RUN dvc pull
 
 WORKDIR /src/mlops
