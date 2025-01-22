@@ -1,0 +1,29 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Build API container image'
+  args: [
+    'build',
+    '.',
+    '-t',
+    'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api',
+    '-f',
+    'dockerfiles/api.dockerfile',
+    '--loginFile=$$dataPullAcount'
+  ]
+  secretEnv: ['dataPullAcount']
+  env:
+    - "DOCKER_BUILDKIT=1"
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Push API container image'
+  args: [
+    'push',
+    'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api'
+  ]
+  env:
+    - "DOCKER_BUILDKIT=1"
+availableSecrets:
+  secretManager:
+  - versionName: projects/344186294911/secrets/datPullManager
+    env: 'dataPullAcount'
+options:
+  logging: CLOUD_LOGGING_ONLY
