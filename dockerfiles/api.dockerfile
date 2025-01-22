@@ -16,7 +16,7 @@ COPY secrets/api_key.json default.json
 RUN dvc init --no-scm
 COPY .dvc/config .dvc/config
 RUN dvc config core.no_scm true
-RUN dvc remote modify myremote --local gdrive_service_account_json_file_path default.json
+RUN dvc remote modify remote_storage --local gdrive_service_account_json_file_path default.json
 COPY models.dvc models.dvc
 RUN dvc pull
 
