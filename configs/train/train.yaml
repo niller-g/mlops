@@ -11,3 +11,5 @@ max_samples: 4  # Use only 4 examples for super quick testing
 wandb:
   project: "my_medical_lm"
   entity: null  # your wandb username/org
+  gcp_project_id: "hardy-abode-316815"
+  secret_id: "WANDB_API_KEY"

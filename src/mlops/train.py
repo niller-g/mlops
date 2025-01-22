@@ -12,9 +12,23 @@ from transformers import (
 from datasets import load_from_disk
 import wandb
 
+# 1) Import Google Secret Manager client
+from google.cloud import secretmanager
+
 from model import DistilGPT2Model
 
 logging.basicConfig(level=logging.INFO)
+
+
+def get_secret(secret_id: str, project_id: str) -> str:
+    """
+    Retrieve a secret's value from Google Cloud Secret Manager.
+    Requires 'google-cloud-secret-manager' and proper GCP credentials.
+    """
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
+    response = client.access_secret_version(request={"name": name})
+    return response.payload.data.decode("UTF-8")
 
 
 @hydra.main(version_base=None, config_path="../../configs", config_name="config")
@@ -62,9 +76,21 @@ def train(cfg: DictConfig):
     model = DistilGPT2Model("distilgpt2")
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
-    # 4) Setup W&B (M14)
+    # 4) Setup W&B
     if cfg.train.wandb.project:
-        wandb.init(project=cfg.train.wandb.project, entity=cfg.train.wandb.entity)
+        # Dynamically fetch the W&B API key from Secret Manager
+        gcp_project_id = cfg.train.wandb.gcp_project_id
+        secret_id = cfg.train.wandb.secret_id
+        wandb_key = get_secret(secret_id, gcp_project_id)
+
+        # Log into W&B with the retrieved key
+        wandb.login(key=wandb_key)
+
+        # Initialize the W&B run
+        wandb.init(
+            project=cfg.train.wandb.project,
+            entity=cfg.train.wandb.entity,
+        )
 
     # Create output directory
     os.makedirs(cfg.paths.models_dir, exist_ok=True)
@@ -86,7 +112,6 @@ def train(cfg: DictConfig):
         no_cuda=True,  # CPU-only; remove or set to False if you want GPU
         fp16=False,
         dataloader_num_workers=0,
-        # Save total number of steps
         max_steps=4,  # Just do a few steps for testing
     )
 
@@ -109,6 +134,7 @@ def train(cfg: DictConfig):
     tokenizer.save_pretrained(final_model_path)
     logging.info(f"Model saved to {final_model_path}")
 
+    # Finish W&B session
     if wandb.run:
         wandb.finish()
 
