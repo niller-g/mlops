@@ -2,6 +2,8 @@ FROM python:3.11-slim AS base
 
 EXPOSE $PORT
 
+ENV GOOGLE_APPLICATION_CREDENTIALS=default.json
+
 RUN apt update && \
     apt install --no-install-recommends -y build-essential gcc && \
     apt clean && rm -rf /var/lib/apt/lists/*
@@ -14,9 +16,10 @@ COPY src src/
 
 COPY secrets/api_key.json default.json
 RUN dvc init --no-scm
-COPY .dvc/config .dvc/config
+#COPY .dvc/config .dvc/config
+RUN dvc remote add -d gcs_remote gs://mlops-grp-43-2025/
 RUN dvc config core.no_scm true
-RUN dvc remote modify remote_storage --local gdrive_service_account_json_file_path default.json
+RUN dvc remote modify gcs_remote --local gdrive_service_account_json_file_path default.json
 COPY models.dvc models.dvc
 RUN dvc pull
 
