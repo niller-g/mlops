@@ -9,7 +9,10 @@ RUN apt update && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt requirements.txt
-RUN pip install --no-cache-dir --default-timeout=100 --verbose -r requirements.txt
+#RUN --mount=type=cache,target=/root/.cache/pip pip install --no-cache-dir --default-timeout=100 --verbose -r requirements.txt
+
+RUN --no-cache-dir --default-timeout=100 --verbose -r requirements.txt
+
 
 COPY src src/
 
@@ -18,10 +21,12 @@ COPY secrets/api_key.json default.json
 RUN dvc init --no-scm
 #COPY .dvc/config .dvc/config
 RUN dvc remote add -d gcs_remote gs://mlops-grp-43-2025/
+COPY *.dvc .dvc/
 RUN dvc config core.no_scm true
-RUN dvc remote modify gcs_remote --local gdrive_service_account_json_file_path default.json
-COPY models.dvc models.dvc
-RUN dvc pull
+#RUN dvc remote modify gcs_remote --local gdrive_service_account_json_file_path default.json
+#COPY models.dvc models.dvc
+#RUN dvc gc --all-branches --all-tags -f
+RUN dvc pull .dvc/models.dvc --force
 
 WORKDIR /src/mlops
 
