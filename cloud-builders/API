@@ -23,7 +23,7 @@ steps:
     - "DOCKER_BUILDKIT=1"
 availableSecrets:
   secretManager:
-  - versionName: projects/344186294911/secrets/datPullManager
+  - versionName: projects/344186294911/secrets/datPullManager/versions/1
     env: 'dataPullAcount'
 options:
   logging: CLOUD_LOGGING_ONLY
