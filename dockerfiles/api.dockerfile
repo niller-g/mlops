@@ -10,7 +10,6 @@ RUN apt update && \
 
 COPY requirements.txt requirements.txt
 #RUN --mount=type=cache,target=/root/.cache/pip pip install --no-cache-dir --default-timeout=100 --verbose -r requirements.txt
-
 RUN pip install --no-cache-dir --default-timeout=100 --verbose -r requirements.txt
 
 
@@ -30,4 +29,5 @@ RUN dvc pull #.dvc/models.dvc --force
 
 WORKDIR /src/mlops
 
-CMD ["uvicorn", "api:app", "--port", "$PORT", "--host", "0.0.0.0", "--workers", "1"]
+CMD ["sh", "-c", "uvicorn api:app --port $PORT --host 0.0.0.0 --workers 1"]
+#CMD ["uvicorn", "api:app", "--port", "${PORT}", "--host", "0.0.0.0", "--workers", "1"]
