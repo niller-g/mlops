@@ -44,9 +44,9 @@ def train(cfg: DictConfig):
     tokenizer = AutoTokenizer.from_pretrained("distilgpt2")
     tokenizer.pad_token = tokenizer.eos_token
 
-    def tokenize(ex):
+    def tokenize(example):
         return tokenizer(
-            ex["clean_text"], truncation=True, padding="max_length", max_length=128
+            example["clean_text"], truncation=True, padding="max_length", max_length=128
         )
 
     # Prepare dataset
@@ -54,9 +54,7 @@ def train(cfg: DictConfig):
     ds = ds.remove_columns(
         [col for col in ds.column_names if col not in ["input_ids", "attention_mask"]]
     )
-    ds = ds.train_test_split(
-        test_size=0.2, seed=42
-    )  # Use 20% for test since we have few examples
+    ds = ds.train_test_split(test_size=0.2, seed=42)  # Use 20% for test
     train_ds = ds["train"]
     val_ds = ds["test"]
 
@@ -84,8 +82,8 @@ def train(cfg: DictConfig):
         save_strategy="no",  # We'll handle saving ourselves
         learning_rate=lr,
         report_to="wandb" if cfg.train.wandb.project else None,
-        # Add some parameters to speed up training
-        no_cuda=True,  # Use CPU for this quick test
+        # Quick test settings
+        no_cuda=True,  # CPU-only; remove or set to False if you want GPU
         fp16=False,
         dataloader_num_workers=0,
         # Save total number of steps

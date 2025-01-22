@@ -50,6 +50,30 @@ def train(ctx: Context) -> None:
 
 
 @task
+def predict(
+    ctx: Context,
+    prompt="What are the symptoms of ",
+    model_path="models/distilgpt2-finetuned-final",
+    max_length=50,
+):
+    """
+    Generate text from the fine-tuned DistilGPT2 model.
+
+    Usage:
+        invoke predict --prompt="Explain how viruses differ from bacteria."
+                       --model-path="models/distilgpt2-finetuned-final"
+                       --max-length=100
+    """
+    cmd = (
+        f"python src/{PROJECT_NAME}/predict.py "
+        f'--prompt "{prompt}" '
+        f'--model-path "{model_path}" '
+        f"--max-length {max_length}"
+    )
+    ctx.run(cmd, echo=True, pty=not WINDOWS)
+
+
+@task
 def test(ctx: Context) -> None:
     """Run tests."""
     ctx.run("coverage run -m pytest tests/", echo=True, pty=not WINDOWS)
