@@ -19,6 +19,19 @@ steps:
     'push',
     'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api'
   ]
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: 'Deploy to Cloud Run'
+  args: [
+    'run',
+    'deploy',
+    'api',
+    '--image',
+    'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api',
+    '--region',
+    'europe-west1',
+    '--platform',
+    'managed',
+  ]
 availableSecrets:
   secretManager:
   - versionName: projects/344186294911/secrets/datPullManager/versions/1

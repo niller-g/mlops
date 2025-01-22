@@ -14,6 +14,7 @@ RUN pip install --no-cache-dir --default-timeout=100 --verbose -r requirements.t
 
 
 COPY src src/
+COPY configs configs/
 
 
 COPY secrets/api_key.json default.json
