@@ -10,3 +10,8 @@ fastapi==0.115.6
 uvicorn==0.34.0
 google-cloud-secret-manager
 snakeviz
+
+
+# Data version controle
+dvc
+dvc-gs
