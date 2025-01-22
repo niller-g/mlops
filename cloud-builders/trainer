@@ -31,6 +31,7 @@ steps:
     'dockerfiles/api.dockerfile',
     '--loginFile=$$dataPullAcount'
   ]
+  secretEnv: ['dataPullAcount']
   env:
     - "DOCKER_BUILDKIT=1"
 - name: 'gcr.io/cloud-builders/docker'
