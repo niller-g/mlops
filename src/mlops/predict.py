@@ -1,18 +1,18 @@
-# src/mlops/predict.py
-
 import argparse
 import torch
 from transformers import AutoTokenizer
 from model import DistilGPT2Model
 
 
-def generate_text(prompt: str, model_path: str, max_length: int = 50) -> str:
-    """Generate text from a prompt using our fine-tuned model."""
+def load_and_generate_text(prompt: str, model_path: str, max_length: int = 50) -> str:
     model = DistilGPT2Model.from_pretrained(model_path)
     tokenizer = AutoTokenizer.from_pretrained(model_path)
-    tokenizer.pad_token = (
-        tokenizer.eos_token
-    )  # DistilGPT2 doesn't have a real pad_token
+    return generate_text(prompt, model, tokenizer, max_length)
+
+
+def generate_text(prompt: str, model, tokenizer, max_length: int = 50) -> str:
+    """Generate text from a prompt using our fine-tuned model."""
+    tokenizer.pad_token = tokenizer.eos_token
 
     inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
     with torch.no_grad():
@@ -33,9 +33,7 @@ def generate_text(prompt: str, model_path: str, max_length: int = 50) -> str:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Generate text from a fine-tuned DistilGPT2 model."
-    )
+    parser = argparse.ArgumentParser(description="Generate text from a fine-tuned DistilGPT2 model.")
     parser.add_argument(
         "--prompt",
         type=str,
@@ -56,6 +54,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    generated = generate_text(args.prompt, args.model_path, max_length=args.max_length)
+    generated = load_and_generate_text(args.prompt, args.model_path, max_length=args.max_length)
     print(f"Prompt: {args.prompt}")
     print(f"Generated: {generated}")

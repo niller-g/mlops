@@ -2,9 +2,9 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from fastapi import FastAPI
 from http import HTTPStatus
-import torch
 from transformers import AutoTokenizer
 from model import DistilGPT2Model
+import predict as infer
 
 
 @asynccontextmanager
@@ -37,17 +37,8 @@ def root():
 
 @app.post("/predict/{prompt}")
 def predict(prompt: str, max_length: None | int):
-    inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+    generated_text = infer.generate_text(
+        prompt, model, tokenizer, max_length if max_length else gen_kwargs["max_length"]
+    )
 
-    with torch.no_grad():
-        output_sequences = model.model.generate(
-            input_ids=inputs["input_ids"],
-            attention_mask=inputs["attention_mask"],
-            max_length=max_length if max_length else gen_kwargs["max_length"],
-            temperature=0.7,
-            num_return_sequences=1,
-            pad_token_id=tokenizer.eos_token_id,
-        )
-
-    generated_text = tokenizer.decode(output_sequences[0], skip_special_tokens=True)
     return generated_text
