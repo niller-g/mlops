@@ -183,3 +183,6 @@ data/
 models/
 /data
 /models
+
+# Used for profiling with invoke tasks
+profiles/

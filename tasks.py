@@ -118,3 +118,49 @@ def build_docs(ctx: Context) -> None:
 def serve_docs(ctx: Context) -> None:
     """Serve documentation."""
     ctx.run("mkdocs serve --config-file docs/mkdocs.yaml", echo=True, pty=not WINDOWS)
+
+
+@task
+def profile_train(ctx, script="src/mlops/train.py", out="profiles/train_profile.prof"):
+    """
+    Profile the training script with cProfile and visualize with Snakeviz.
+
+    Usage:
+        invoke profile-train
+        invoke profile-train --script=src/mlops/train.py --out=profiles/custom_train.prof
+    """
+    # Ensure the output directory exists
+    out_dir = os.path.dirname(out)
+    if out_dir and not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    # Run cProfile
+    cmd_profile = f"python -m cProfile -o {out} -s cumtime {script}"
+    ctx.run(cmd_profile, echo=True, pty=not WINDOWS)
+
+    # Launch Snakeviz
+    cmd_snakeviz = f"snakeviz {out}"
+    ctx.run(cmd_snakeviz, echo=True, pty=not WINDOWS)
+
+
+@task
+def profile_predict(ctx, script="src/mlops/predict.py", out="profiles/predict_profile.prof"):
+    """
+    Profile the prediction script with cProfile and visualize with Snakeviz.
+
+    Usage:
+        invoke profile-predict
+        invoke profile-predict --script=src/mlops/predict.py --out=profiles/custom_predict.prof
+    """
+    # Ensure the output directory exists
+    out_dir = os.path.dirname(out)
+    if out_dir and not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+
+    # Run cProfile
+    cmd_profile = f"python -m cProfile -o {out} -s cumtime {script}"
+    ctx.run(cmd_profile, echo=True, pty=not WINDOWS)
+
+    # Launch Snakeviz
+    cmd_snakeviz = f"snakeviz {out}"
+    ctx.run(cmd_snakeviz, echo=True, pty=not WINDOWS)
