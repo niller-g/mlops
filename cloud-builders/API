@@ -6,6 +6,9 @@ steps:
 - name: gcr.io/cloud-builders/gcloud
   entrypoint: "bash"
   args: ["-c", "cat /workspace/secrets/api_key.json"]
+- name: gcr.io/cloud-builders/gcloud
+  entrypoint: "bash"
+  args: ["-c", "tree"]
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Build API container image'
   args: [
