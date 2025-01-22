@@ -15,14 +15,12 @@ class DistilGPT2Model(nn.Module):
         )
 
     def save_pretrained(self, path):
-        """Custom save method to handle weight saving properly"""
-        self.model.save_pretrained(
-            path, safe_serialization=False
-        )  # Disable safetensors
+        """Custom save method to handle weight saving properly."""
+        self.model.save_pretrained(path, safe_serialization=False)
 
     @classmethod
     def from_pretrained(cls, path):
-        """Custom load method"""
+        """Custom load method."""
         instance = cls()
         instance.model = AutoModelForCausalLM.from_pretrained(path)
         return instance
