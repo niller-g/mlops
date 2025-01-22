@@ -1,7 +1,6 @@
 FROM python:3.11-slim AS base
 
 EXPOSE $PORT
-ARG LOGINFILE
 
 RUN apt update && \
     apt install --no-install-recommends -y build-essential gcc && \
@@ -14,7 +13,7 @@ RUN --mount=type=cache,target=/root/.cache/pip pip install --no-cache-dir --defa
 COPY src src/
 
 
-COPY $LOGINFILE default.json
+COPY /workspace/secrets/api_key.json default.json
 COPY .dvc/config .dvc/config
 RUN dvc init --no-scm
 COPY models.dvc models.dvc
