@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir --default-timeout=100 --verbose -r requirements.t
 COPY src src/
 
 
-COPY /workspace/secrets/api_key.json default.json
+COPY workspace/secrets/api_key.json default.json
 COPY .dvc/config .dvc/config
 RUN dvc init --no-scm
 COPY models.dvc models.dvc
