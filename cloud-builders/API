@@ -13,16 +13,12 @@ steps:
     '-f',
     'dockerfiles/api.dockerfile'
   ]
-  env:
-    - "DOCKER_BUILDKIT=1"
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Push API container image'
   args: [
     'push',
     'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api'
   ]
-  env:
-    - "DOCKER_BUILDKIT=1"
 availableSecrets:
   secretManager:
   - versionName: projects/344186294911/secrets/datPullManager/versions/1
