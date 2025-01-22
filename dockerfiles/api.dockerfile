@@ -11,7 +11,7 @@ RUN apt update && \
 COPY requirements.txt requirements.txt
 #RUN --mount=type=cache,target=/root/.cache/pip pip install --no-cache-dir --default-timeout=100 --verbose -r requirements.txt
 
-RUN --no-cache-dir --default-timeout=100 --verbose -r requirements.txt
+RUN pip install --no-cache-dir --default-timeout=100 --verbose -r requirements.txt
 
 
 COPY src src/
