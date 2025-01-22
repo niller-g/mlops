@@ -8,7 +8,8 @@ steps:
     'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api',
     '-f',
     'dockerfiles/api.dockerfile',
-    '--LOGINFILE=$$dataPullAcount'
+    '--build-arg'
+    'LOGINFILE=$$dataPullAcount'
   ]
   secretEnv: ['dataPullAcount']
   env:
