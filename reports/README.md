@@ -187,7 +187,8 @@ This process ensures a consistent development environment with all necessary dep
 >
 > Answer:
 
---- question 5 fill here ---
+From the cookiecutter template, we used its default folder structure, including the `data`, `models` and `train` modules. We also filled out configuration files for environment and dependency management. We kept the `tests` folder from the template to organize our unit tests instead of including them along side the source code itself instead of having them right next to each file. This structure allowed us to quickly integrate Docker, CI/CD, and other MLOps practices without any refactoring. We have some .gitignore´ed folders that will be generated such as `outputs`, `models`, `data`. Some of these folders will be generated when training others when pulling data from dvc.
+
 
 ### Question 6
 

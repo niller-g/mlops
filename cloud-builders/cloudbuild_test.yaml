@@ -4,29 +4,29 @@ steps:
   args: ["-c", "mkdir -p /workspace/secrets && echo $$API_KEY > /workspace/secrets/api_key.json"]
   secretEnv: ["API_KEY"]
 - name: 'gcr.io/cloud-builders/docker'
-  id: 'Build API container image'
+  id: 'Build API-test container image'
   args: [
     'build',
     '.',
     '-t',
-    'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api',
+    'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api-test',
     '-f',
-    'dockerfiles/cloudbuild.dockerfile'
+    'dockerfiles/cloudbuild_test.dockerfile'
   ]
 - name: 'gcr.io/cloud-builders/docker'
-  id: 'Push API container image'
+  id: 'Push API-test container image'
   args: [
     'push',
-    'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api'
+    'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api-test'
   ]
 - name: 'gcr.io/cloud-builders/gcloud'
   id: 'Deploy to Cloud Run'
   args: [
     'run',
     'deploy',
-    'api',
+    'api-test',
     '--image',
-    'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api',
+    'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api-test',
     '--region',
     'europe-west1',
     '--platform',

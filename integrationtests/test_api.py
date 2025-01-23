@@ -8,21 +8,26 @@ from unittest.mock import patch, MagicMock
 # Import the FastAPI "app" from your code
 from src.mlops.api import app
 
+
 # Create a mock model and tokenizer for testing
 @pytest.fixture(autouse=True)
 def mock_model_setup():
-    with patch('mlops.model.DistilGPT2Model.from_pretrained') as mock_model, \
-         patch('transformers.AutoTokenizer.from_pretrained') as mock_tokenizer:
+    with (
+        patch("mlops.model.DistilGPT2Model.from_pretrained") as mock_model,
+        patch("transformers.AutoTokenizer.from_pretrained") as mock_tokenizer,
+    ):
         # Configure the mocks
         mock_model.return_value = MagicMock()
         mock_tokenizer.return_value = MagicMock()
         yield
+
 
 @pytest.fixture
 def client():
     # This ensures the lifespan context is properly handled
     with TestClient(app) as c:
         yield c
+
 
 def test_root_endpoint(client):
     """
@@ -32,6 +37,7 @@ def test_root_endpoint(client):
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {"message": "OK", "status-code": 200}
+
 
 @patch("mlops.predict.generate_text", return_value="[MOCKED] generated text")
 def test_infer_mocked(mock_generate_text, client):
@@ -47,9 +53,10 @@ def test_infer_mocked(mock_generate_text, client):
     mock_generate_text.assert_called_once()
     assert len(response.text) > 0
 
+
 @pytest.mark.skipif(
     not os.path.isdir("models/distilgpt2-finetuned-final"),
-    reason="Local model folder not found. Skipping real integration test."
+    reason="Local model folder not found. Skipping real integration test.",
 )
 def test_infer_real(client):
     """
