@@ -125,11 +125,7 @@ will check the repositories and the code to verify your answers.
 
 > **Enter the study number for each member in the group**
 >
-> Example:
->
-> *204424, s204470, s204510*
->
-> Answer:
+> Answer: 204424, s204470, s204510
 
 --- question 2 fill here ---
 
