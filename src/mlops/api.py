@@ -3,8 +3,8 @@ from typing import AsyncGenerator
 from fastapi import FastAPI
 from http import HTTPStatus
 from transformers import AutoTokenizer
-from model import DistilGPT2Model
-import predict as infer
+from .model import DistilGPT2Model
+from .predict import generate_text
 
 
 @asynccontextmanager
@@ -37,8 +37,6 @@ def root():
 
 @app.post("/predict/{prompt}")
 def predict(prompt: str, max_length: None | int):
-    generated_text = infer.generate_text(
-        prompt, model, tokenizer, max_length if max_length else gen_kwargs["max_length"]
-    )
+    generated_text = generate_text(prompt, model, tokenizer, max_length if max_length else gen_kwargs["max_length"])
 
     return generated_text

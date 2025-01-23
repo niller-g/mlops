@@ -1,7 +1,7 @@
 import argparse
 import torch
 from transformers import AutoTokenizer
-from model import DistilGPT2Model
+from .model import DistilGPT2Model
 
 
 def load_and_generate_text(prompt: str, model_path: str, max_length: int = 50) -> str:
