@@ -11,13 +11,9 @@ COPY requirements.txt requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip pip install --no-cache-dir --default-timeout=100 --verbose -r requirements.txt
 
 COPY src src/
-
-RUN dvc init --no-scm
-COPY models.dvc models.dvc
-RUN dvc config core.no_scm true
-RUN dvc pull
+COPY /models models/
 
 
-WORKDIR /src/mlops
+WORKDIR .
 
-CMD ["uvicorn", "api:app", "--port", "$PORT", "--host", "0.0.0.0", "--workers", "1"]
+CMD exec uvicorn mlops.api:app --port $PORT --host 0.0.0.0 --workers 1

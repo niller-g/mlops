@@ -1,13 +1,13 @@
 import argparse
 import torch
 from transformers import AutoTokenizer
-from .model import DistilGPT2Model
+import mlops.model as model
 
 
 def load_and_generate_text(prompt: str, model_path: str, max_length: int = 50) -> str:
-    model = DistilGPT2Model.from_pretrained(model_path)
+    m = model.DistilGPT2Model.from_pretrained(model_path)
     tokenizer = AutoTokenizer.from_pretrained(model_path)
-    return generate_text(prompt, model, tokenizer, max_length)
+    return generate_text(prompt, m, tokenizer, max_length)
 
 
 def generate_text(prompt: str, model, tokenizer, max_length: int = 50) -> str:

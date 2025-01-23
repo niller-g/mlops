@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from mlops.api import app
+from src.mlops.api import app
 
 
 def test_root():
