@@ -162,7 +162,16 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 4 fill here ---
+We used `pyproject.toml` for managing our dependencies, including `requirements.txt` and `requirements_dev.txt`. This approach allowed us to define and categorize dependencies and allow us to potentially make more levels of dependencies for example `requirements_deploy.txt`, `requirements_test.txt` etc... To get an exact copy of our development environment, a new team member would need to follow these steps:
+
+1. Download and install Python.
+2. Create a virtual environment using `.venv` by running `python -m venv .venv`.
+3. Activate the virtual environment:
+   * On Windows: `.venv\Scripts\activate`
+   * On macOS/Linux: `source .venv/bin/activate`
+4. Install the dependencies using the command: `pip install .[dev]`.
+
+This process ensures a consistent development environment with all necessary dependencies, including those for development and testing.
 
 ### Question 5
 
