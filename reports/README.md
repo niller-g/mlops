@@ -141,6 +141,7 @@ will check the repositories and the code to verify your answers.
 > *package to do ... and ... in our project*.
 >
 > Answer:
+
 We added Great Expectations to handle data validation, which wasn’t in the course materials. It checks that our clean_text column exists and isn’t empty, and that our dataset has enough rows for proper training. If something’s off—like missing text—it throws an error before training starts. This saved us time debugging weird data issues and let us trust the data going into our model. Integrating Great Expectations felt like a natural step toward a more robust MLOps pipeline, because it stops training automatically if any data quality checks fail, rather than letting us discover the problem later when it’s harder to fix.
 
 --- question 3 fill here ---
@@ -203,7 +204,7 @@ From the cookiecutter template, we used its default folder structure, including 
 >
 > Answer:
 
-We used Ruff as a linting step in our CI pipeline to enforce style conventions. We also have a pre-commit hook that automatically runs Ruff to format our code, which keeps everything consistent across the team. For typing, we added type hints in the main data, model, and training functions so it’s clearer what each function expects and returns. This is especially helpful when the codebase grows and new members join. In large projects, consistent formatting and code quality checks prevent “style drift” and reduce merge conflicts. Typing also reduces bugs by catching mismatches early, and clear documentation helps everyone quickly understand how each function should be used.
+We used Ruff as a linting step in our CI pipeline to enforce style conventions. We also have a pre-commit hook that automatically runs Ruff to format our code, which keeps everything consistent across the team. For typing, we added type hints in the main data, model, and training functions so it’s clearer what each function expects and returns. This is especially helpful when the codebase grows and new members join. In large projects, consistent formatting and code quality checks prevent "style drift" and reduce merge conflicts. Typing also reduces bugs by catching mismatches early, and clear documentation helps everyone quickly understand how each function should be used.
 
 ## Version control
 
