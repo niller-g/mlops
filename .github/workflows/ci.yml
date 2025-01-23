@@ -4,26 +4,30 @@ on: [push, pull_request]
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        python-version: ["3.11"]
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: setup.py
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r requirements_dev.txt
-          pip install -r requirements.txt
+          pip install .[dev]
 
       - name: Lint
-        run: |
-          flake8 src tests
+        run: ruff check .
 
       - name: Run tests with coverage
         run: |
