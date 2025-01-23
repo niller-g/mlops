@@ -5,17 +5,29 @@ from model import DistilGPT2Model
 
 
 def load_and_generate_text(prompt: str, model_path: str, max_length: int = 50) -> str:
+    """
+    Loads the fine-tuned DistilGPT2 model and tokenizer from `model_path`,
+    then uses it to generate text from the given prompt.
+    """
+    # 1) Load your custom model & tokenizer
     model = DistilGPT2Model.from_pretrained(model_path)
     tokenizer = AutoTokenizer.from_pretrained(model_path)
+
+    # 2) Generate text
     return generate_text(prompt, model, tokenizer, max_length)
 
 
 def generate_text(prompt: str, model, tokenizer, max_length: int = 50) -> str:
-    """Generate text from a prompt using our fine-tuned model."""
+    """
+    Generate text from a prompt using your fine-tuned model.
+    NOTE: We call `model.model.generate(...)` because in DistilGPT2Model,
+    the actual GPT-2 model is in `model.model`, which does have `.generate()`.
+    """
     tokenizer.pad_token = tokenizer.eos_token
-
     inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
+
     with torch.no_grad():
+        # IMPORTANT: We use `model.model.generate` instead of `model.generate`
         output_sequences = model.model.generate(
             input_ids=inputs["input_ids"],
             attention_mask=inputs["attention_mask"],
@@ -50,10 +62,11 @@ if __name__ == "__main__":
         "--max-length",
         type=int,
         default=50,
-        help="Maximum length of generated sequence.",
+        help="Maximum length of the generated sequence.",
     )
     args = parser.parse_args()
 
+    # Generate text from the prompt
     generated = load_and_generate_text(args.prompt, args.model_path, max_length=args.max_length)
     print(f"Prompt: {args.prompt}")
     print(f"Generated: {generated}")
