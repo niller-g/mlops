@@ -13,7 +13,6 @@ RUN --mount=type=cache,target=/root/.cache/pip pip install --no-cache-dir --defa
 COPY src src/
 COPY /models models/
 
-
-WORKDIR .
+WORKDIR /src
 
 CMD exec uvicorn mlops.api:app --port $PORT --host 0.0.0.0 --workers 1
