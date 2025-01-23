@@ -190,7 +190,6 @@ This process ensures a consistent development environment with all necessary dep
 
 From the cookiecutter template, we used its default folder structure, including the `data`, `models` and `train` modules. We also filled out configuration files for environment and dependency management. We kept the `tests` folder from the template to organize our unit tests instead of including them along side the source code itself instead of having them right next to each file. This structure allowed us to quickly integrate Docker, CI/CD, and other MLOps practices without any refactoring. We have some .gitignore´ed folders that will be generated such as `outputs`, `models`, `data`. Some of these folders will be generated when training others when pulling data from dvc.
 
-
 ### Question 6
 
 > **Did you implement any rules for code quality and format? What about typing and documentation? Additionally,**
@@ -203,9 +202,8 @@ From the cookiecutter template, we used its default folder structure, including 
 > *concepts are important in larger projects because ... . For example, typing ...*
 >
 > Answer:
-We used Flake8 as a linting step in our CI pipeline to enforce style conventions. We also have a pre-commit hook that automatically runs black to format our code, which keeps everything consistent across the team. For typing, we added type hints in the main data, model, and training functions so it’s clearer what each function expects and returns. This is especially helpful when the codebase grows and new members join. In large projects, consistent formatting and code quality checks prevent “style drift” and reduce merge conflicts. Typing also reduces bugs by catching mismatches early, and clear documentation helps everyone quickly understand how each function should be used.
 
---- question 6 fill here ---
+We used Ruff as a linting step in our CI pipeline to enforce style conventions. We also have a pre-commit hook that automatically runs Ruff to format our code, which keeps everything consistent across the team. For typing, we added type hints in the main data, model, and training functions so it’s clearer what each function expects and returns. This is especially helpful when the codebase grows and new members join. In large projects, consistent formatting and code quality checks prevent “style drift” and reduce merge conflicts. Typing also reduces bugs by catching mismatches early, and clear documentation helps everyone quickly understand how each function should be used.
 
 ## Version control
 
@@ -223,9 +221,8 @@ We used Flake8 as a linting step in our CI pipeline to enforce style conventions
 > *application but also ... .*
 >
 > Answer:
-We have around eight tests in total. Four focus on the data processing part—checking that our dataset downloads correctly, verifies the presence of columns like clean_text, and handles edge cases. Two tests check model creation, ensuring we can initialize DistilGPT2Model without errors and that forward passes work on dummy input. The remaining two test our training flow, confirming we can run a short training loop without crashing and produce valid outputs. We prioritized these areas because data loading and model initialization are the most critical.
 
---- question 7 fill here ---
+We have around eight tests in total. Four focus on the data processing part—checking that our dataset downloads correctly, verifies the presence of columns like clean_text, and handles edge cases. Two tests check model creation, ensuring we can initialize DistilGPT2Model without errors and that forward passes work on dummy input. The remaining two test our training flow, confirming we can run a short training loop without crashing and produce valid outputs. We prioritized these areas because data loading and model initialization are the most critical.
 
 ### Question 8
 
@@ -239,9 +236,8 @@ We have around eight tests in total. Four focus on the data processing part—ch
 > *code and even if we were then...*
 >
 > Answer:
-Our coverage hovers around 70%. We’re focusing heavily on data utilities and core model logic, so the uncovered lines are mostly edge cases or some Docker/CLI code. Even if we reached 100% coverage, that wouldn’t guarantee a bug-free codebase—coverage only tells us whether each line was executed, not whether we tested all logical pathways or performance edge cases. Real-world issues (like concurrency, unexpected data drift, or misconfiguration) can still pop up even if every line gets run in tests. That said, pushing coverage higher does reduce the risk of regressions. Our goal is to strike a balance between thorough testing of important parts (like data transformations and model forward passes) without letting coverage targets overshadow actual usage scenarios.
 
---- question 8 fill here ---
+Our coverage hovers around 70%. We’re focusing heavily on data utilities and core model logic, so the uncovered lines are mostly edge cases or some Docker/CLI code. Even if we reached 100% coverage, that wouldn’t guarantee a bug-free codebase—coverage only tells us whether each line was executed, not whether we tested all logical pathways or performance edge cases. Real-world issues (like concurrency, unexpected data drift, or misconfiguration) can still pop up even if every line gets run in tests. That said, pushing coverage higher does reduce the risk of regressions. Our goal is to strike a balance between thorough testing of important parts (like data transformations and model forward passes) without letting coverage targets overshadow actual usage scenarios.
 
 ### Question 9
 
@@ -287,15 +283,17 @@ Our coverage hovers around 70%. We’re focusing heavily on data utilities and c
 > *here: <weblink>*
 >
 > Answer:
+
 We have one main GitHub Actions workflow called ci.yml. It runs on every push and pull request, covering the following steps:
-	1.	We run Flake8 across the code to enforce style consistency, plus Black in check-mode so we know if anything’s unformatted.
-	2.	We run pytest on both our data tests and model tests, with coverage generation. We use the pytest-cov plugin to measure coverage.
-	3.	Our workflow tests Python 3.10 and 3.11 on Ubuntu. We decided to skip Windows because we don’t rely on OS-specific features. If needed, it’s easy to add windows-latest or macOS-latest to the matrix.
-	4.	We enable pip caching in the GitHub Actions environment so repeated runs are faster. This shortens installation times significantly, especially with packages like PyTorch and Transformers.
 
-	We also have a separate workflow for building Docker images whenever we push changes to main, which triggers Cloud Build. You can see an example of our main CI file here: [GitHub Link to ci.yml]. This setup ensures that any changes are linted, tested, and validated before merging, preventing broken code from hitting production.
+1. We run Ruff across the code to enforce style consistency and to check if anything is unformatted.
 
---- question 11 fill here ---
+2. We run pytest on both our data tests and model tests, with coverage generation. We use the pytest-cov plugin to measure coverage.
+
+3. Our workflow tests Python 3.11 on Ubuntu, MacOs and Windows.
+
+4. We enable pip caching in the GitHub Actions environment so repeated runs are faster. This shortens installation times significantly, especially with packages like PyTorch and Transformers.
+We also have a separate workflow for building Docker images whenever we push changes to main, which triggers Cloud Build.
 
 ## Running code and tracking experiments
 
