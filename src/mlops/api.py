@@ -9,12 +9,12 @@ import mlops.predict as predict
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator:
-    model_path = "models/distilgpt2-finetuned-final"
+    model_path = "/models/distilgpt2-finetuned-final"
 
     global m, tokenizer, gen_kwargs
-    print("Loading model...")
-    m = model.DistilGPT2Model.from_pretrained(model_path)
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    print(f"Loading model from {model_path}...")
+    m = model.DistilGPT2Model.from_pretrained(model_path, local_files_only=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_path, local_files_only=True)
     gen_kwargs = {"max_length": 16}
 
     yield
