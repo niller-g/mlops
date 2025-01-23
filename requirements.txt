@@ -10,6 +10,7 @@ fastapi==0.115.6
 uvicorn==0.34.0
 google-cloud-secret-manager
 snakeviz
+great-expectations==0.18.10
 
 
 # Data version controle

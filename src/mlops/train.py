@@ -14,7 +14,7 @@ import wandb
 
 # 1) Import Google Secret Manager client
 from google.cloud import secretmanager
-
+from data_validation import DataValidator
 from model import DistilGPT2Model
 
 logging.basicConfig(level=logging.INFO)
@@ -49,10 +49,28 @@ def train(cfg: DictConfig):
     )
     logging.info(f"Loading dataset from {processed_path}")
     ds = load_from_disk(processed_path)
+    
+    total_samples = len(ds)
+    logging.info(f"Dataset loaded with {total_samples} total samples")
 
-    # Take a small subset for quick testing
-    ds = ds.shuffle(seed=42).select(range(max_samples))
-    logging.info(f"Using {len(ds)} examples for quick testing")
+    # Take a subset for quick testing if max_samples is specified and less than total
+    if max_samples and max_samples < total_samples:
+        ds = ds.shuffle(seed=42).select(range(max_samples))
+        logging.info(f"Using {max_samples} examples for quick testing")
+    else:
+        logging.info(f"Using all {total_samples} examples for training")
+
+    # Validate dataset using Great Expectations
+    validator = DataValidator()
+    # Use test mode if we're using a small sample
+    is_test_mode = max_samples and max_samples < 100
+    validation_results = validator.validate_dataset(ds, is_test_mode=is_test_mode)
+    
+    if not validation_results["success"]:
+        logging.error("Data validation failed! Check the logs above for details.")
+        raise ValueError("Dataset failed validation checks")
+
+    logging.info("Data validation passed successfully!")
 
     # 2) Tokenizer
     tokenizer = AutoTokenizer.from_pretrained("distilgpt2")
@@ -111,8 +129,7 @@ def train(cfg: DictConfig):
         # Quick test settings
         no_cuda=True,  # CPU-only; remove or set to False if you want GPU
         fp16=False,
-        dataloader_num_workers=0,
-        max_steps=4,  # Just do a few steps for testing
+        dataloader_num_workers=4,
     )
 
     trainer = Trainer(

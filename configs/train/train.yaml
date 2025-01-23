@@ -2,11 +2,11 @@
 defaults:
   - _self_
 
-batch_size: 2
-lr: 5e-5
-max_epochs: 1
-eval_steps: 1  # Evaluate after each step
-max_samples: 4  # Use only 4 examples for super quick testing
+batch_size: 8
+lr: 2e-5
+max_epochs: 3
+eval_steps: 200
+max_samples: null
 
 wandb:
   project: "my_medical_lm"
