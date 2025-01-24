@@ -1,4 +1,4 @@
-from prometheus_client import Counter, Gauge, Histogram
+from prometheus_client import Counter, Gauge, Histogram, CollectorRegistry
 import psutil
 import logging
 from typing import Optional
@@ -9,50 +9,62 @@ logger = logging.getLogger(__name__)
 
 class MLOpsMetrics:
     def __init__(self):
+        # Create a custom registry for this instance
+        self.registry = CollectorRegistry()
+        
         # Training metrics
         self.training_steps = Counter(
             'training_steps_total',
-            'Total number of training steps completed'
+            'Total number of training steps completed',
+            registry=self.registry
         )
         self.training_loss = Gauge(
             'training_loss',
-            'Current training loss'
+            'Current training loss',
+            registry=self.registry
         )
         self.validation_loss = Gauge(
             'validation_loss',
-            'Current validation loss'
+            'Current validation loss',
+            registry=self.registry
         )
         self.epoch_progress = Gauge(
             'epoch_progress',
-            'Current epoch progress'
+            'Current epoch progress',
+            registry=self.registry
         )
         
         # Data validation metrics
         self.validation_checks = Counter(
             'data_validation_checks_total',
             'Total number of data validation checks performed',
-            ['check_name', 'status']
+            ['check_name', 'status'],
+            registry=self.registry
         )
         
         # Model metrics
         self.inference_latency = Histogram(
             'model_inference_latency_seconds',
             'Time taken for model inference',
-            buckets=(0.1, 0.5, 1.0, 2.0, 5.0)
+            buckets=(0.1, 0.5, 1.0, 2.0, 5.0),
+            registry=self.registry
         )
         
         # System metrics
         self.gpu_memory_used = Gauge(
             'gpu_memory_used_bytes',
-            'GPU memory currently in use'
+            'GPU memory currently in use',
+            registry=self.registry
         )
         self.cpu_usage = Gauge(
             'cpu_usage_percent',
-            'CPU usage percentage'
+            'CPU usage percentage',
+            registry=self.registry
         )
         self.ram_usage = Gauge(
             'ram_usage_bytes',
-            'RAM memory currently in use'
+            'RAM memory currently in use',
+            registry=self.registry
         )
         
         # Start system metrics collection

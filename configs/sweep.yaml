@@ -1,0 +1,35 @@
+program: src/mlops/train.py
+method: bayes
+metric:
+  name: eval_loss
+  goal: minimize
+parameters:
+  learning_rate:
+    min: 0.0001
+    max: 0.01
+  batch_size:
+    values: [8, 16, 32]
+  num_epochs:
+    values: [2, 3, 4]
+  warmup_steps:
+    values: [100, 200, 500]
+  weight_decay:
+    min: 0.0
+    max: 0.2
+  gradient_accumulation_steps:
+    values: [1, 2, 4]
+  max_samples:
+    values: [50]   # pick how small you want
+
+command:
+  - ${env}
+  - python
+  - ${program}
+  - +sweep=true
+  - ++train.batch_size=${batch_size}
+  - ++train.lr=${learning_rate}
+  - ++train.max_epochs=${num_epochs}
+  - ++train.warmup_steps=${warmup_steps}
+  - ++train.weight_decay=${weight_decay}
+  - ++train.gradient_accumulation_steps=${gradient_accumulation_steps}
+  - ++train.max_samples=${max_samples}

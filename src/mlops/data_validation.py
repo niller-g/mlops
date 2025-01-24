@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class DataValidator:
     def __init__(self):
         self.context = ge.get_context()
-        self.metrics = MLOpsMetrics(port=8001)  # Use different port than API
+        self.metrics = MLOpsMetrics()  # Use different port than API
     
     def validate_dataset(self, dataset: Dataset, is_test_mode: bool = False) -> Dict[str, Any]:
         """
