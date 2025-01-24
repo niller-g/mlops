@@ -470,9 +470,8 @@ However, we then moved to Google Cloud Run to run our FastAPI application, which
 > *was because ...*
 >
 > Answer:
-We did not fully train on Vertex AI or the Compute Engine. We tested smaller experiments on a local CPU for convenience. Vertex AI would provide a more scalable solution, but setting it up required extra budget and more environment configuration. We did, however, push some Docker images to our GCP registry that, in principle, could be run on Vertex AI custom jobs. The plan was to demonstrate local container-based training and then replicate that in the cloud if time allowed. In the end, local training was enough for our proof-of-concept, especially because our model was small and we chose to now use too much data to train on.
 
---- question 22 fill here ---
+We trained our model in Google Cloud using a Dockerized trainer, but did not rely on Vertex AI. Instead, we used a Compute Engine instance where we pulled our Docker image from the Artifact Registry and ran the training code inside the container. This setup gave us direct control over the environment while still leveraging the scalability of the cloud. It also allowed us to confirm that container-based training works in a real cloud environment without incurring extra complexity from Vertex AI. Our proof-of-concept was successful on the Compute Engine, and we found this approach sufficient for our current scope.
 
 ## Deployment
 
@@ -488,9 +487,8 @@ We did not fully train on Vertex AI or the Compute Engine. We tested smaller exp
 > *to the API to make it more ...*
 >
 > Answer:
-Yes, we built a FastAPI application (api.py) that loads our fine-tuned DistilGPT2 model. We set up a /infer endpoint, so users can post a JSON or form parameter prompt, and the model returns generated text. We also added /metrics using Prometheus Python client, which lets Prometheus scrape inference latencies, CPU usage, etc. We containerized the API in api_local.dockerfile, making it easy to spin up with Docker Compose. We also have the background thread **_start_system_metrics_collection** that collects system metrics (RAM, CPU, GPU memory) for each request. This makes us able track performance in real time, which is useful for debugging and general monitoring.
 
---- question 23 fill here ---
+Yes, we built a FastAPI application (api.py) that loads our fine-tuned DistilGPT2 model. We set up a /infer endpoint, so users can post a JSON or form parameter prompt, and the model returns generated text. We also added /metrics using Prometheus Python client, which lets Prometheus scrape inference latencies, CPU usage, etc. We containerized the API in api_local.dockerfile, making it easy to spin up with Docker Compose. We also have the background thread **_start_system_metrics_collection** that collects system metrics (RAM, CPU, GPU memory) for each request. This makes us able track performance in real time, which is useful for debugging and general monitoring.
 
 ### Question 24
 
@@ -505,9 +503,10 @@ Yes, we built a FastAPI application (api.py) that loads our fine-tuned DistilGPT
 > *`curl -X POST -F "file=@file.json"<weburl>`*
 >
 > Answer:
-We only deployed the API **locally** using Docker Compose. After building our container image from **`api_local.dockerfile`**. So we spin up the FastAPI container plus Prometheus, Grafana, and Locust on a shared Docker network. The API listens on port 8000, Prometheus scrapes /metrics, and Grafana visualizes the collected metrics. Locust runs load tests against http://api:8000/infer to measure inference performance under different traffic scenarios. For our current project scope, this local setup is enough for demonstration and development. In principle, the same container could be deployed to a cloud service, but we haven’t done a fully managed deployment yet.
 
---- question 24 fill here ---
+We only deployed the API **locally** using Docker Compose. After building our container image from **`api_local.dockerfile`**. So we spin up the FastAPI container plus Prometheus, Grafana, and Locust on a shared Docker network. The API listens on port 8000, Prometheus scrapes /metrics, and Grafana visualizes the collected metrics. Locust runs load tests against `http://api:8000/infer` to measure inference performance under different traffic scenarios. For our current project scope, this local setup is enough for demonstration and development.
+
+We did mange to deploy the API in the cloud using Google Cloud Run. We built a new Docker image named `api` and pushed it to Google Artifact Registry. Then we created a new service in Cloud Run, specifying the image and port. We did manage to send curl requests to the deployed service, but we also used Locust to send load tests to the API.
 
 ### Question 25
 
@@ -521,9 +520,8 @@ We only deployed the API **locally** using Docker Compose. After building our co
 > *before the service crashed.*
 >
 > Answer:
-For unit testing, we rely on pytest with a `test_api.py` file to ensure the `"/infer"` endpoint returns a valid response, and we mock the underlying model to avoid loading large files every time. We also conducted a basic load test with Locust, using a script (`locust_tests.py`) that spawns a small number of simulated users (2–5). Each user selects random prompts and occasionally sets a `max_length` to see if our API can handle multiple requests concurrently. We didn’t push for high concurrency or specifically tune response times, since we’re running on CPU and mostly wanted to confirm the API wouldn’t crash under a modest load. Even under those limited conditions, requests completed in a reasonable time, which is fine for our current demo.
 
---- question 25 fill here ---
+For unit testing, we rely on pytest with a `test_api.py` file to ensure the `"/infer"` endpoint returns a valid response, and we mock the underlying model to avoid loading large files every time. We also conducted a basic load test with Locust, using a script (`locust_tests.py`) that spawns a small number of simulated users (2–5). Each user selects random prompts and occasionally sets a `max_length` to see if our API can handle multiple requests concurrently. We didn’t push for high concurrency or specifically tune response times, since we’re running on CPU and mostly wanted to confirm the API wouldn’t crash under a modest load. Even under those limited conditions, requests completed in a reasonable time, which is fine for our current demo.
 
 ### Question 26
 
@@ -537,16 +535,14 @@ For unit testing, we rely on pytest with a `test_api.py` file to ensure the `"/i
 > *measure ... and ... that would inform us about this ... behaviour of our application.*
 >
 > Answer:
+
 Yes, we set up a local monitoring stack with Prometheus and Grafana. Our FastAPI app exposes a /metrics route via the prometheus_client library, which includes custom counters and gauges for training steps, validation loss, and inference latency. Prometheus scrapes this endpoint every five seconds, then stores the time-series metrics. Grafana reads from Prometheus, letting us visualize CPU usage, GPU memory, average inference time, and so on. We also tested the system under load with Locust, watching real-time dashboards in Grafana to see if latency spiked.
 
 Here is a screenshot of the Grafana dashboard while using Locust to send some load:
-Grafana-dashboard-1: [Grafana-dashboard](figures/Grafana.png)
-Grafana-dashboard-2: [Grafana-dashboard](figures/Grafana-2.png)
-Locust-dashboard: [Locust-dashboard](figures/Locust.png)
-Prometheus-cpu-usage-dashboard: [Prometheus-dashboard](figures/Prometheus.png)
-
-
---- question 26 fill here ---
+Grafana-dashboard-1: ![Grafana-dashboard](figures/Grafana.png)
+Grafana-dashboard-2: ![Grafana-dashboard](figures/Grafana-2.png)
+Locust-dashboard: ![Locust-dashboard](figures/Locust.png)
+Prometheus-cpu-usage-dashboard: ![Prometheus-dashboard](figures/Prometheus.png)
 
 ## Overall discussion of project
 
@@ -565,7 +561,11 @@ Prometheus-cpu-usage-dashboard: [Prometheus-dashboard](figures/Prometheus.png)
 >
 > Answer:
 
---- question 27 fill here ---
+We used about 5 credits in total, with the most expensive service being Google Cloud Run. This was because we ran a few load tests with Locust to simulate multiple users hitting the API at once. The cost of Cloud Run is based on the number of requests and the amount of CPU and memory used, so running a large number of requests can quickly add up.
+
+The second most expensive service was Google Artifact Registry, which we used to store our Docker images. The cost of Artifact Registry is based on the amount of storage used and the number of requests made to the registry.
+
+Working in the cloud was a good experience overall. It allowed us to easily scale our application, deploy new versions quickly, and monitor performance in real time. The ability to spin up new instances on demand and only pay for what we use was also a big advantage.
 
 ### Question 28
 
@@ -612,13 +612,12 @@ We just did Grafana because it looked good, and the Great Expectations as our ne
 > *The biggest challenges in the project was using ... tool to do ... . The reason for this was ...*
 >
 > Answer:
+
 Our biggest challenge was integrating a wide range of tools—Docker, DVC, Prometheus, Grafana—while still keeping our code organized. Each service comes with its own configuration files (for instance, `docker-compose.yml`, `prometheus.yml`, and various Grafana provisioning JSONs), and we occasionally ran into version mismatches or Docker networking issues. For example, Prometheus sometimes failed to scrape the API because the container name or network alias wasn’t set up properly. We also discovered how important it is to leverage caching in Docker builds; otherwise, rebuilding images can take ages, especially when installing large packages.
 We also had a day-long detour dealing with Python version differences—some team members were on Python 3.12 and others on 3.11, causing library incompatibilities. In the end, we standardized on Python 3.11.9, which resolved most of those issues.
 
-TODO: Add something about google could being a b*tch
-
-
---- question 30 fill here ---
+The process of using the cloud also felt a bit slow to interact with. We had to wait for the Docker images to build, the Cloud Run service to deploy, and the Cloud Build to finish. This made it hard to iterate quickly on changes, especially when we were debugging issues with the API. We also had to be careful about costs, since we were charged for every request to the API and every minute the Cloud Run service was running. We had to be mindful of how many requests we were sending to the API and how long we were keeping the service running to avoid unexpected costs.
+However this is only the feeling because it is a small scale project, in a larger project the cloud would in most cases be the faster solution.
 
 ### Question 31
 
@@ -635,6 +634,5 @@ TODO: Add something about google could being a b*tch
 > *All members contributed to code by...*
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
-Student s204510 set up the initial cookiecutter structure, wrote the Dockerfiles, and integrated Great Expectations for data validation. Student s204424 handled the CI/CD pipelines on GitHub Actions, plus the DVC linking to our bucket. Student s204470 focused on the FastAPI service, Prometheus instrumentation, and Grafana dashboards. We collaborated a bit on the small amount of training code we have, just to decidec which model we wanted to use. We occasionally used ChatGPT to brainstorm debugging approaches or understand error messages. We also used GitHub Copilot for small code suggestions in Python scripts. All final code was reviewed and tested by the group before merging.
 
---- question 31 fill here ---
+Student s204510 set up the initial cookiecutter structure, wrote the Dockerfiles, and integrated Great Expectations for data validation. Student s204424 handled the CI/CD pipelines on GitHub Actions, plus the DVC linking to our bucket. Student s204470 focused on the FastAPI service, Prometheus instrumentation, and Grafana dashboards. We collaborated a bit on the small amount of training code we have, just to decided which model we wanted to use. We occasionally used ChatGPT to brainstorm debugging approaches or understand error messages. We also used GitHub Copilot for small code suggestions in Python scripts. All final code was reviewed and tested by the group before merging.
