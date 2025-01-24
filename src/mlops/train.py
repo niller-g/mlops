@@ -36,19 +36,19 @@ def get_secret(secret_id: str, project_id: str) -> str:
 class MetricsCallback(TrainerCallback):
     def __init__(self, metrics: MLOpsMetrics):
         self.metrics = metrics
-    
+
     def on_step_end(self, args, state, control, **kwargs):
         """Record metrics after each training step"""
         if state.log_history:
             latest_log = state.log_history[-1]
-            if 'loss' in latest_log:
-                self.metrics.record_training_step(latest_log['loss'])
-    
+            if "loss" in latest_log:
+                self.metrics.record_training_step(latest_log["loss"])
+
     def on_evaluate(self, args, state, control, metrics=None, **kwargs):
         """Record validation metrics"""
-        if metrics and 'eval_loss' in metrics:
-            self.metrics.record_validation_loss(metrics['eval_loss'])
-    
+        if metrics and "eval_loss" in metrics:
+            self.metrics.record_validation_loss(metrics["eval_loss"])
+
     def on_epoch_end(self, args, state, control, **kwargs):
         """Record epoch progress"""
         if state.epoch is not None:
@@ -61,7 +61,7 @@ class MetricsCallback(TrainerCallback):
 def train(cfg: DictConfig):
     # Initialize metrics (use different port than validation)
     metrics = MLOpsMetrics()
-    
+
     logging.info("Starting training with Hydra config...")
     logging.info(f"Working directory: {os.getcwd()}")
 
@@ -73,12 +73,10 @@ def train(cfg: DictConfig):
     max_samples = cfg.train.max_samples  # Number of examples to use for quick testing
 
     # 1) Load processed data
-    processed_path = os.path.join(
-        cfg.paths.data_dir, "processed/medical_questions_processed"
-    )
+    processed_path = os.path.join(cfg.paths.data_dir, "processed/medical_questions_processed")
     logging.info(f"Loading dataset from {processed_path}")
     ds = load_from_disk(processed_path)
-    
+
     total_samples = len(ds)
     logging.info(f"Dataset loaded with {total_samples} total samples")
 
@@ -94,7 +92,7 @@ def train(cfg: DictConfig):
     # Use test mode if we're using a small sample
     is_test_mode = max_samples and max_samples < 100
     validation_results = validator.validate_dataset(ds, is_test_mode=is_test_mode)
-    
+
     if not validation_results["success"]:
         logging.error("Data validation failed! Check the logs above for details.")
         raise ValueError("Dataset failed validation checks")
@@ -106,15 +104,11 @@ def train(cfg: DictConfig):
     tokenizer.pad_token = tokenizer.eos_token
 
     def tokenize(example):
-        return tokenizer(
-            example["clean_text"], truncation=True, padding="max_length", max_length=128
-        )
+        return tokenizer(example["clean_text"], truncation=True, padding="max_length", max_length=128)
 
     # Prepare dataset
     ds = ds.map(tokenize, batched=True)
-    ds = ds.remove_columns(
-        [col for col in ds.column_names if col not in ["input_ids", "attention_mask"]]
-    )
+    ds = ds.remove_columns([col for col in ds.column_names if col not in ["input_ids", "attention_mask"]])
     ds = ds.train_test_split(test_size=0.2, seed=42)  # Use 20% for test
     train_ds = ds["train"]
     val_ds = ds["test"]
@@ -145,9 +139,10 @@ def train(cfg: DictConfig):
     # 5) HF Trainer
     # Detect hardware
     import torch
+
     use_gpu = torch.cuda.is_available()
-    use_mps = hasattr(torch.backends, 'mps') and torch.backends.mps.is_available()
-    
+    _use_mps = hasattr(torch.backends, "mps") and torch.backends.mps.is_available()
+
     training_args = TrainingArguments(
         output_dir=os.path.join(cfg.paths.models_dir, "distilgpt2-finetuned"),
         overwrite_output_dir=True,
