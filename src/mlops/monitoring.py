@@ -8,55 +8,65 @@ import time
 logger = logging.getLogger(__name__)
 
 class MLOpsMetrics:
+    _instance = None
+    _initialized = False
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(MLOpsMetrics, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self):
-        # Training metrics
-        self.training_steps = Counter(
-            'training_steps_total',
-            'Total number of training steps completed'
-        )
-        self.training_loss = Gauge(
-            'training_loss',
-            'Current training loss'
-        )
-        self.validation_loss = Gauge(
-            'validation_loss',
-            'Current validation loss'
-        )
-        self.epoch_progress = Gauge(
-            'epoch_progress',
-            'Current epoch progress'
-        )
-        
-        # Data validation metrics
-        self.validation_checks = Counter(
-            'data_validation_checks_total',
-            'Total number of data validation checks performed',
-            ['check_name', 'status']
-        )
-        
-        # Model metrics
-        self.inference_latency = Histogram(
-            'model_inference_latency_seconds',
-            'Time taken for model inference',
-            buckets=(0.1, 0.5, 1.0, 2.0, 5.0)
-        )
-        
-        # System metrics
-        self.gpu_memory_used = Gauge(
-            'gpu_memory_used_bytes',
-            'GPU memory currently in use'
-        )
-        self.cpu_usage = Gauge(
-            'cpu_usage_percent',
-            'CPU usage percentage'
-        )
-        self.ram_usage = Gauge(
-            'ram_usage_bytes',
-            'RAM memory currently in use'
-        )
-        
-        # Start system metrics collection
-        self._start_system_metrics_collection()
+        if not MLOpsMetrics._initialized:
+            MLOpsMetrics._initialized = True
+            # Training metrics
+            self.training_steps = Counter(
+                'training_steps_total',
+                'Total number of training steps completed'
+            )
+            self.training_loss = Gauge(
+                'training_loss',
+                'Current training loss'
+            )
+            self.validation_loss = Gauge(
+                'validation_loss',
+                'Current validation loss'
+            )
+            self.epoch_progress = Gauge(
+                'epoch_progress',
+                'Current epoch progress'
+            )
+            
+            # Data validation metrics
+            self.validation_checks = Counter(
+                'data_validation_checks_total',
+                'Total number of data validation checks performed',
+                ['check_name', 'status']
+            )
+            
+            # Model metrics
+            self.inference_latency = Histogram(
+                'model_inference_latency_seconds',
+                'Time taken for model inference',
+                buckets=(0.1, 0.5, 1.0, 2.0, 5.0)
+            )
+            
+            # System metrics
+            self.gpu_memory_used = Gauge(
+                'gpu_memory_used_bytes',
+                'GPU memory currently in use'
+            )
+            self.cpu_usage = Gauge(
+                'cpu_usage_percent',
+                'CPU usage percentage'
+            )
+            self.ram_usage = Gauge(
+                'ram_usage_bytes',
+                'RAM memory currently in use'
+            )
+            
+            # Start system metrics collection
+            self._start_system_metrics_collection()
     
     def _collect_system_metrics(self):
         """Collect system metrics periodically"""

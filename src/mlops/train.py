@@ -60,7 +60,7 @@ class MetricsCallback(TrainerCallback):
 @hydra.main(version_base=None, config_path="../../configs", config_name="config")
 def train(cfg: DictConfig):
     # Initialize metrics (use different port than validation)
-    metrics = MLOpsMetrics(port=8002)
+    metrics = MLOpsMetrics()
     
     logging.info("Starting training with Hydra config...")
     logging.info(f"Working directory: {os.getcwd()}")
@@ -143,6 +143,11 @@ def train(cfg: DictConfig):
     os.makedirs(cfg.paths.models_dir, exist_ok=True)
 
     # 5) HF Trainer
+    # Detect hardware
+    import torch
+    use_gpu = torch.cuda.is_available()
+    use_mps = hasattr(torch.backends, 'mps') and torch.backends.mps.is_available()
+    
     training_args = TrainingArguments(
         output_dir=os.path.join(cfg.paths.models_dir, "distilgpt2-finetuned"),
         overwrite_output_dir=True,
@@ -155,8 +160,8 @@ def train(cfg: DictConfig):
         save_strategy="no",  # We'll handle saving ourselves
         learning_rate=lr,
         report_to="wandb" if cfg.train.wandb.project else None,
-        no_cuda=False,  # Use GPU if available
-        fp16=True,  # Enable mixed precision training
+        no_cuda=not use_gpu,  # Only use GPU if available
+        fp16=use_gpu,  # Only use fp16 if CUDA GPU is available
         dataloader_num_workers=4,  # Use multiple workers for data loading
     )
 

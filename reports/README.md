@@ -67,7 +67,7 @@ will check the repositories and the code to verify your answers.
 * [x] Use profiling to optimize your code (M12)
 * [x] Use logging to log important events in your code (M14)
 * [x] Use Weights & Biases to log training progress and other important metrics/artifacts in your code (M14)
-* [ ] Consider running a hyperparameter optimization sweep (M14)
+* [x] Consider running a hyperparameter optimization sweep (M14)
 * [ ] Use PyTorch-lightning (if applicable) to reduce the amount of boilerplate in your code (M15)
 
 ### Week 2
@@ -87,7 +87,7 @@ will check the repositories and the code to verify your answers.
 * [x] Create a FastAPI application that can do inference using your model (M22)
 * [x] Deploy your model in GCP using either Functions or Run as the backend (M23)
 * [x] Write API tests for your application and setup continues integration for these (M24)
-* [ ] Load test your application (M24)
+* [x] Load test your application (M24)
 * [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
 * [ ] Create a frontend for your API (M26)
 
@@ -95,7 +95,7 @@ will check the repositories and the code to verify your answers.
 
 * [ ] Check how robust your model is towards data drifting (M27)
 * [ ] Deploy to the cloud a drift detection API (M27)
-* [ ] Instrument your API with a couple of system metrics (M28)
+* [x] Instrument your API with a couple of system metrics (M28)
 * [ ] Setup cloud monitoring of your instrumented application (M28)
 * [ ] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)
 * [ ] If applicable, optimize the performance of your data loading using distributed data loading (M29)
@@ -350,6 +350,11 @@ First, we store all hyperparameters and paths in Hydra config files so we have a
 > *As seen in the second image we are also tracking ... and ...*
 >
 > Answer:
+We configured a Weights & Biases (W&B) sweep that automatically sampled various hyperparameters (such as learning rate, batch size, weight decay, etc.) and launched multiple training runs. In theory, this would help us discover an optimal combination without manually trying each setting. But for some reason, these sweep runs turned out to be unexpectedly slow. Even after reducing the dataset size and lowering the number of steps per epoch, we still found each run took longer than anticipated to reach a useful point in training. 
+As a result, we didn’t manage to complete a real hyperparameter search - instead, we took a small subset of our dataset—just enough to confirm that the W&B sweep setup was working. That gave us at least some initial data to upload to W&B, which you can see below. The chart is admittedly not very informative. If we wanted truly meaningful sweep results, we would probably need more computational resources and a more optimized approach, and possibly further profiling to pinpoint what was slowing down our CPU runs. [Small-sweep-results](figures/failed-sweeps.png)
+
+We did manage to get a bunch of results from trainings. They can be seen in these figures: 
+[Evaluation-results](figures/wandb_eval.png), [Training-results](figures/wandb_train.png), [System-results](figures/wandb_system.png)
 
 --- question 14 fill here ---
 
@@ -526,6 +531,13 @@ For unit testing, we rely on pytest with a `test_api.py` file to ensure the `"/i
 >
 > Answer:
 Yes, we set up a local monitoring stack with Prometheus and Grafana. Our FastAPI app exposes a /metrics route via the prometheus_client library, which includes custom counters and gauges for training steps, validation loss, and inference latency. Prometheus scrapes this endpoint every five seconds, then stores the time-series metrics. Grafana reads from Prometheus, letting us visualize CPU usage, GPU memory, average inference time, and so on. We also tested the system under load with Locust, watching real-time dashboards in Grafana to see if latency spiked.
+
+Here is a screenshot of the Grafana dashboard while using Locust to send some load: 
+Grafana-dashboard-1: [Grafana-dashboard](figures/Grafana.png)
+Grafana-dashboard-2: [Grafana-dashboard](figures/Grafana-2.png)
+Locust-dashboard: [Locust-dashboard](figures/Locust.png)
+Prometheus-cpu-usage-dashboard: [Prometheus-dashboard](figures/Prometheus.png)
+
 
 --- question 26 fill here ---
 
