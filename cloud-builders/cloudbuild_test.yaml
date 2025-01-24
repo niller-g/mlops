@@ -11,7 +11,7 @@ steps:
     '-t',
     'europe-west1-docker.pkg.dev/hardy-abode-316815/container-registrey/api-test',
     '-f',
-    'dockerfiles/cloudbuild_test.dockerfile'
+    'dockerfiles/api_test.dockerfile'
   ]
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Push API-test container image'
