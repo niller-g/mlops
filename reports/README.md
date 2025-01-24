@@ -117,17 +117,21 @@ will check the repositories and the code to verify your answers.
 
 > **Enter the group number you signed up on <learn.inside.dtu.dk>**
 >
-> Answer: 43
+> Answer:
 
---- question 1 fill here ---
+43
 
 ### Question 2
 
 > **Enter the study number for each member in the group**
 >
-> Answer: 204424, s204470, s204510
+> Example:
+>
+> *sXXXXXX, sXXXXXX, sXXXXXX*
+>
+> Answer:
 
---- question 2 fill here ---
+204424, s204470, s204510
 
 ### Question 3
 
@@ -143,8 +147,6 @@ will check the repositories and the code to verify your answers.
 > Answer:
 
 We added Great Expectations to handle data validation, which wasn’t in the course materials. It checks that our clean_text column exists and isn’t empty, and that our dataset has enough rows for proper training. If something’s off—like missing text—it throws an error before training starts. This saved us time debugging weird data issues and let us trust the data going into our model. Integrating Great Expectations felt like a natural step toward a more robust MLOps pipeline, because it stops training automatically if any data quality checks fail, rather than letting us discover the problem later when it’s harder to fix.
-
---- question 3 fill here ---
 
 ## Coding environment
 
@@ -252,9 +254,8 @@ Our coverage hovers around 70%. We’re focusing heavily on data utilities and c
 > *addition to the main branch. To merge code we ...*
 >
 > Answer:
-We ended up no using separate branches and pull requests in this project, mainly because we were often pair-programming or making quick, non-overlapping contributions. In a typical software engineering scenario, we’d create feature branches and open PRs for every change, but here we found it simpler to commit directly to `main` and resolve small merge conflicts as they arose. This approach worked for us because we maintained close communication and generally knew which files each person was modifying. But we do recognize the value of branching and PRs in larger teams or when changes are more substantial. In those cases, feature branches help isolate new functionality, and pull requests give people a chance to review and catch mistakes before merging. 
 
---- question 9 fill here ---
+We ended up no using separate branches and pull requests in this project, mainly because we were often pair-programming or making quick, non-overlapping contributions. In a typical software engineering scenario, we’d create feature branches and open PRs for every change, but here we found it simpler to commit directly to `main` and resolve small merge conflicts as they arose. This approach worked for us because we maintained close communication and generally knew which files each person was modifying. But we do recognize the value of branching and PRs in larger teams or when changes are more substantial. In those cases, feature branches help isolate new functionality, and pull requests give people a chance to review and catch mistakes before merging.
 
 ### Question 10
 
@@ -268,9 +269,8 @@ We ended up no using separate branches and pull requests in this project, mainly
 > *pipeline*
 >
 > Answer:
-Yes, we used DVC to version-control our processed dataset. Each time we changed our preprocessing, we committed the updated dataset with dvc add and pushed it to remote storage. That way, the code commit and the data version are aligned. If a bug was introduced by new data transformations, we had the ability to roll back both code and data. It also kept large files out of our Git repo, preventing ballooning repository sizes. Although we didn't use it much, having DVC track each dataset version is nice to have, so we can reproduce old experiments exactly.
 
---- question 10 fill here ---
+Yes, we used DVC to version-control our processed dataset. Each time we changed our preprocessing, we committed the updated dataset with dvc add and pushed it to remote storage in the Google Cloud. That way, the code commit and the data version are aligned. If a bug was introduced by new data transformations, we had the ability to roll back both code and data. It also kept large files out of our Git repo, preventing ballooning repository sizes. Although we didn't use it much, having DVC track each dataset version is nice to have, so we can reproduce old experiments exactly.
 
 ### Question 11
 
@@ -298,6 +298,8 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 4. We enable pip caching in the GitHub Actions environment so repeated runs are faster. This shortens installation times significantly, especially with packages like PyTorch and Transformers.
 We also have a separate workflow for building Docker images whenever we push changes to main, which triggers Cloud Build.
 
+Additionally when changes to the code, model or data arise, we then run integration tests with the newest data and model pulled from the Google Cloud storage. This made it possible for os to test the API with the actual data and model we would use in production. We could not run this in the CI pipeline because of the need for to pull the data from the Google Cloud storage which made it simpler to just trigger it and then check the results in Google Cloud.
+
 ## Running code and tracking experiments
 
 > In the following section we are interested in learning more about the experimental setup for running your code and
@@ -314,11 +316,10 @@ We also have a separate workflow for building Docker images whenever we push cha
 > *We used a simple argparser, that worked in the following way: Python  my_script.py --lr 1e-3 --batch_size 25*
 >
 > Answer:
+
 We used Hydra to load YAML configs in our configs folder. For instance, train.py has a Hydra decorator that reads parameters like batch_size, lr, and max_epochs. To run an experiment, we can do something like:
 python src/mlops/train.py train.batch_size=8 train.lr=2e-5 train.max_epochs=3
 Hydra then overrides the default values in configs/config.yaml with those command-line arguments. This keeps our hyperparameters organized in one place and makes it simple to run multiple experiments with different settings, all while logging them in W&B.
-
---- question 12 fill here ---
 
 ### Question 13
 
@@ -332,6 +333,7 @@ Hydra then overrides the default values in configs/config.yaml with those comman
 > *one would have to do ...*
 >
 > Answer:
+
 First, we store all hyperparameters and paths in Hydra config files so we have a record of exactly how each experiment was run. Second, every run logs metrics, hyperparams, and artifacts to Weights & Biases. That gives us a versioned history of each experiment, including training curves, final model weights, and any config overrides. Third, we use DVC to version the data, so we can always roll back to the dataset used in a given run. Together, we make sure that we can replicate any experiment - we just check out the right Git commit, pull the matching dataset with DVC, and re-run the code using the same config.
 
 --- question 13 fill here ---
@@ -350,10 +352,10 @@ First, we store all hyperparameters and paths in Hydra config files so we have a
 > *As seen in the second image we are also tracking ... and ...*
 >
 > Answer:
-We configured a Weights & Biases (W&B) sweep that automatically sampled various hyperparameters (such as learning rate, batch size, weight decay, etc.) and launched multiple training runs. In theory, this would help us discover an optimal combination without manually trying each setting. But for some reason, these sweep runs turned out to be unexpectedly slow. Even after reducing the dataset size and lowering the number of steps per epoch, we still found each run took longer than anticipated to reach a useful point in training. 
+We configured a Weights & Biases (W&B) sweep that automatically sampled various hyperparameters (such as learning rate, batch size, weight decay, etc.) and launched multiple training runs. In theory, this would help us discover an optimal combination without manually trying each setting. But for some reason, these sweep runs turned out to be unexpectedly slow. Even after reducing the dataset size and lowering the number of steps per epoch, we still found each run took longer than anticipated to reach a useful point in training.
 As a result, we didn’t manage to complete a real hyperparameter search - instead, we took a small subset of our dataset—just enough to confirm that the W&B sweep setup was working. That gave us at least some initial data to upload to W&B, which you can see below. The chart is admittedly not very informative. If we wanted truly meaningful sweep results, we would probably need more computational resources and a more optimized approach, and possibly further profiling to pinpoint what was slowing down our CPU runs. [Small-sweep-results](figures/failed-sweeps.png)
 
-We did manage to get a bunch of results from trainings. They can be seen in these figures: 
+We did manage to get a bunch of results from trainings. They can be seen in these figures:
 [Evaluation-results](figures/wandb_eval.png), [Training-results](figures/wandb_train.png), [System-results](figures/wandb_system.png)
 
 --- question 14 fill here ---
@@ -532,7 +534,7 @@ For unit testing, we rely on pytest with a `test_api.py` file to ensure the `"/i
 > Answer:
 Yes, we set up a local monitoring stack with Prometheus and Grafana. Our FastAPI app exposes a /metrics route via the prometheus_client library, which includes custom counters and gauges for training steps, validation loss, and inference latency. Prometheus scrapes this endpoint every five seconds, then stores the time-series metrics. Grafana reads from Prometheus, letting us visualize CPU usage, GPU memory, average inference time, and so on. We also tested the system under load with Locust, watching real-time dashboards in Grafana to see if latency spiked.
 
-Here is a screenshot of the Grafana dashboard while using Locust to send some load: 
+Here is a screenshot of the Grafana dashboard while using Locust to send some load:
 Grafana-dashboard-1: [Grafana-dashboard](figures/Grafana.png)
 Grafana-dashboard-2: [Grafana-dashboard](figures/Grafana-2.png)
 Locust-dashboard: [Locust-dashboard](figures/Locust.png)
