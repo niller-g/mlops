@@ -580,9 +580,8 @@ Working in the cloud was a good experience overall. It allowed us to easily scal
 > *implemented using ...*
 >
 > Answer:
-We just did Grafana because it looked good, and the Great Expectations as our new package. We've been looking for a solution to continous monitoring and validation of data, so the Great Expectations was a good fit.
 
---- question 28 fill here ---
+We just did Grafana because it looked good, and the Great Expectations as our new package. We've been looking for a solution to continous monitoring and validation of data, so the Great Expectations was a good fit.
 
 ### Question 29
 
@@ -599,7 +598,42 @@ We just did Grafana because it looked good, and the Great Expectations as our ne
 >
 > Answer:
 
---- question 29 fill here ---
+The overall architecture of the system can be described as follows:
+
+The starting point is the **ML developer** who works in the local development environment on their own machine. The developer uses **Docker Compose** to manage local Docker images for tasks such as pulling data, training, testing, and monitoring. Key tools include **Hydra** for configuration management, **Weights & Biases (W&B)** for experiment tracking, and **Prometheus** for monitoring.
+
+The workflow begins with the developer making **code changes**. The process involves:
+
+1. Pre-commit hooks for initial validation.
+2. Committing the changes locally.
+3. Pushing the changes to the **GitHub repository**.
+
+Upon pushing the code, **GitHub Actions** triggers a CI/CD pipeline. This pipeline performs:
+
+* Multi-OS testing.
+* Code formatting checks.
+* Linting.
+* Running unit tests.
+
+From GitHub, a **GCP trigger** initiates the build of Docker images. Two types of Docker images are created:
+
+1. A training image for model training.
+2. A FastAPI image for deployment.
+
+The **Google Cloud Artifact Registry** stores these images and uses caching to optimize subsequent builds. The trained model is saved in the cloud, and data is mounted as needed.
+
+The deployment process has two components:
+
+1. **Training Deployment**: The trained model is saved and managed in the cloud.
+2. **FastAPI App Deployment**: The FastAPI app is deployed for serving predictions. Internet users interact with the deployed app via SSH or direct requests.
+
+Finally, **data versioning** and management are handled using **DVC**, with data stored in a cloud-based **Storage Bucket**. The system ensures reproducibility, scalability, and efficient model training and deployment.
+
+Along with automation for code changes, the training and deployment processes will also run when the data is changed in DVC.
+
+This architecture integrates multiple tools and services seamlessly, focusing on automation, monitoring, and scalability for machine learning workflows.
+
+![Architecture Diagram](figures/architecture.png)
 
 ### Question 30
 
