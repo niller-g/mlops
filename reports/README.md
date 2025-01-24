@@ -352,13 +352,12 @@ First, we store all hyperparameters and paths in Hydra config files so we have a
 > *As seen in the second image we are also tracking ... and ...*
 >
 > Answer:
+
 We configured a Weights & Biases (W&B) sweep that automatically sampled various hyperparameters (such as learning rate, batch size, weight decay, etc.) and launched multiple training runs. In theory, this would help us discover an optimal combination without manually trying each setting. But for some reason, these sweep runs turned out to be unexpectedly slow. Even after reducing the dataset size and lowering the number of steps per epoch, we still found each run took longer than anticipated to reach a useful point in training.
-As a result, we didn’t manage to complete a real hyperparameter search - instead, we took a small subset of our dataset—just enough to confirm that the W&B sweep setup was working. That gave us at least some initial data to upload to W&B, which you can see below. The chart is admittedly not very informative. If we wanted truly meaningful sweep results, we would probably need more computational resources and a more optimized approach, and possibly further profiling to pinpoint what was slowing down our CPU runs. [Small-sweep-results](figures/failed-sweeps.png)
+As a result, we did not manage to complete a real hyperparameter search - instead, we took a small subset of our dataset - just enough to confirm that the W&B sweep setup was working. That gave us at least some initial data to upload to W&B, which you can see below. The chart is admittedly not very informative. If we wanted truly meaningful sweep results, we would probably need more computational resources and a more optimized approach, and possibly further profiling to pinpoint what was slowing down our CPU runs. ![Small-sweep-results](figures/failed-sweeps.png)
 
-We did manage to get a bunch of results from trainings. They can be seen in these figures:
-[Evaluation-results](figures/wandb_eval.png), [Training-results](figures/wandb_train.png), [System-results](figures/wandb_system.png)
-
---- question 14 fill here ---
+We did manage to get a bunch of useful results from training sessions and they can be seen in the following figures:
+![Evaluation-results](figures/wandb_eval.png), ![Training-results](figures/wandb_train.png).
 
 ### Question 15
 
@@ -372,11 +371,10 @@ We did manage to get a bunch of results from trainings. They can be seen in thes
 > *training docker image: `docker run trainer:latest lr=1e-3 batch_size=64`. Link to docker file: <weblink>*
 >
 > Answer:
-We primarily containerized our FastAPI application using a file named **`api_local.dockerfile`** in the **`dockerfiles/`** folder. That Dockerfile sets up the environment, installs dependencies, and exposes port **8000**. Our **Docker Compose** file (**`docker-compose.yml`**) then orchestrates multiple containers at once: the API container, Prometheus for metrics scraping, Grafana for visualization, and Locust for load testing.
+
+We primarily containerized our FastAPI application using a file named `api_local.dockerfile` in the `dockerfiles/` folder. That Dockerfile sets up the environment, installs dependencies, and exposes port `8000`. Our **Docker Compose** file (**`docker-compose.yml`**) then orchestrates multiple containers at once: the API container, Prometheus for metrics scraping, Grafana for visualization, and Locust for load testing.
 When we run: docker compose up --build it builds the API image locally and spins up every service on a shared network, so Prometheus can scrape the API at api:8000/metrics, and Grafana can pull data from Prometheus. This lets all teammates launch an identical environment with the same Python libraries and OS packages.
 We don’t currently use a dedicated container for training, so our main focus has been deploying and monitoring the inference API in a reproducible manner. See our [Dockerfile](https://github.com/your-username/your-repo/blob/main/dockerfiles/api_local.dockerfile)
-
---- question 15 fill here ---
 
 ### Question 16
 
@@ -391,7 +389,9 @@ We don’t currently use a dedicated container for training, so our main focus h
 >
 > Answer:
 
---- question 16 fill here ---
+We used a mix of debugging methods. However, we mostly relied the debugger, pdb, to set breakpoints, step through code and inspect variables. We also used Weights & Biases to log metrics and artifacts during training, which helped us spot issues like exploding gradients or slow convergence. We didn’t do a full profiling run, but we did use the Python cProfile module to measure the time spent in different functions. This helped us gain confidence in identifying bottlenecks. We also used the `line_profiler` package to profile specific functions and lines of code, which helped us optimize our data loading and model inference steps.
+
+However we did not feel like it was necessary to keep those parts since the application would have to grow in size before there is great benefits.
 
 ## Working in the cloud
 
@@ -407,9 +407,10 @@ We don’t currently use a dedicated container for training, so our main focus h
 > *We used the following two services: Engine and Bucket. Engine is used for... and Bucket is used for...*
 >
 > Answer:
+
 We used Google Cloud Storage (GCS) for storing large datasets and model checkpoints via DVC, Google Cloud Build to automatically build Docker images when we push to main, and Secret Manager to store the Weights & Biases API key (retrieved in train.py). GCS replaced local storage for data files, Cloud Build integrated with our GitHub repo, and Secret Manager let us avoid hardcoding sensitive credentials.
 
---- question 17 fill here ---
+Also we use Google Artifact Registry to store our Docker images and Google Cloud Run to run our FastAPI application. Artifact Registry is a private Docker registry that stores our container images, Compute Engine provides virtual machines to run our API.
 
 ### Question 18
 
