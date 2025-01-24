@@ -425,7 +425,11 @@ Also we use Google Artifact Registry to store our Docker images and Google Cloud
 >
 > Answer:
 
---- question 18 fill here ---
+We created one simple Compute Engine instance with Ubuntu. We did not specify any custom hardware, since our application is not very demanding and the training could be done in a reasonable time.
+
+This instance was used in the early stages of development to host our FastAPI application, which was containerized in a Docker image. The Compute Engine instance was a convenient way to test our application in a cloud environment without the complexity of a full Kubernetes cluster. We could easily SSH into the instance to check logs, run tests, and monitor performance.
+
+However, we then moved to Google Cloud Run to run our FastAPI application, which is a fully managed serverless platform that automatically scales up and down based on traffic. This was a more cost-effective solution for our use case, since we only pay for the resources we use.
 
 ### Question 19
 
@@ -434,7 +438,7 @@ Also we use Google Artifact Registry to store our Docker images and Google Cloud
 >
 > Answer:
 
---- question 19 fill here ---
+![Google Cloud Storage Bucket](figures/buckets.png)
 
 ### Question 20
 
@@ -443,7 +447,7 @@ Also we use Google Artifact Registry to store our Docker images and Google Cloud
 >
 > Answer:
 
---- question 20 fill here ---
+![Google Artifact Registry](figures/artifact-registry.png)
 
 ### Question 21
 
@@ -452,7 +456,7 @@ Also we use Google Artifact Registry to store our Docker images and Google Cloud
 >
 > Answer:
 
---- question 21 fill here ---
+![Google Cloud Build History](figures/build-history.png)
 
 ### Question 22
 
