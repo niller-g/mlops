@@ -3,7 +3,7 @@ FROM python:3.11-slim AS base
 EXPOSE $PORT
 
 RUN apt update && \
-    apt install --no-install-recommends -y build-essential gcc && \
+    apt install --no-install-recommends -y build-essential gcc curl && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
 ENV DOCKER_BUILDKIT=1

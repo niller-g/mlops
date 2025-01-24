@@ -8,6 +8,7 @@ from transformers import (
     Trainer,
     TrainingArguments,
     DataCollatorForLanguageModeling,
+    TrainerCallback,
 )
 from datasets import load_from_disk
 import wandb
@@ -16,6 +17,7 @@ import wandb
 from google.cloud import secretmanager
 from data_validation import DataValidator
 from model import DistilGPT2Model
+from monitoring import MLOpsMetrics
 
 logging.basicConfig(level=logging.INFO)
 
@@ -31,8 +33,35 @@ def get_secret(secret_id: str, project_id: str) -> str:
     return response.payload.data.decode("UTF-8")
 
 
+class MetricsCallback(TrainerCallback):
+    def __init__(self, metrics: MLOpsMetrics):
+        self.metrics = metrics
+    
+    def on_step_end(self, args, state, control, **kwargs):
+        """Record metrics after each training step"""
+        if state.log_history:
+            latest_log = state.log_history[-1]
+            if 'loss' in latest_log:
+                self.metrics.record_training_step(latest_log['loss'])
+    
+    def on_evaluate(self, args, state, control, metrics=None, **kwargs):
+        """Record validation metrics"""
+        if metrics and 'eval_loss' in metrics:
+            self.metrics.record_validation_loss(metrics['eval_loss'])
+    
+    def on_epoch_end(self, args, state, control, **kwargs):
+        """Record epoch progress"""
+        if state.epoch is not None:
+            # Calculate progress within current epoch
+            progress = state.epoch - int(state.epoch)
+            self.metrics.record_epoch_progress(progress)
+
+
 @hydra.main(version_base=None, config_path="../../configs", config_name="config")
 def train(cfg: DictConfig):
+    # Initialize metrics (use different port than validation)
+    metrics = MLOpsMetrics(port=8002)
+    
     logging.info("Starting training with Hydra config...")
     logging.info(f"Working directory: {os.getcwd()}")
 
@@ -126,10 +155,9 @@ def train(cfg: DictConfig):
         save_strategy="no",  # We'll handle saving ourselves
         learning_rate=lr,
         report_to="wandb" if cfg.train.wandb.project else None,
-        # Quick test settings
-        no_cuda=True,  # CPU-only; remove or set to False if you want GPU
-        fp16=False,
-        dataloader_num_workers=4,
+        no_cuda=False,  # Use GPU if available
+        fp16=True,  # Enable mixed precision training
+        dataloader_num_workers=4,  # Use multiple workers for data loading
     )
 
     trainer = Trainer(
@@ -138,6 +166,7 @@ def train(cfg: DictConfig):
         data_collator=data_collator,
         train_dataset=train_ds,
         eval_dataset=val_ds,
+        callbacks=[MetricsCallback(metrics)],  # Add metrics callback
     )
 
     logging.info("Beginning training...")

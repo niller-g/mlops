@@ -223,7 +223,7 @@ We used Flake8 as a linting step in our CI pipeline to enforce style conventions
 > *application but also ... .*
 >
 > Answer:
-We have around eight tests in total. Four focus on the data processing part—checking that our dataset downloads correctly, verifies the presence of columns like clean_text, and handles edge cases. Two tests check model creation, ensuring we can initialize DistilGPT2Model without errors and that forward passes work on dummy input. The remaining two test our training flow, confirming we can run a short training loop without crashing and produce valid outputs. We prioritized these areas because data loading and model initialization are the most critical.
+We have around eight tests in total. Four focus on the data processing part—checking that our dataset downloads correctly, verifies the presence of columns like clean_text, and handles edge cases. Two tests check model creation, making sure we can initialize DistilGPT2Model without errors and that forward passes work on dummy input. The remaining two test our training flow, confirming we can run a short training loop without crashing and produce valid outputs. We prioritized these areas because data loading and model initialization are the most critical.
 
 --- question 7 fill here ---
 
@@ -255,6 +255,7 @@ Our coverage hovers around 70%. We’re focusing heavily on data utilities and c
 > *addition to the main branch. To merge code we ...*
 >
 > Answer:
+We ended up no using separate branches and pull requests in this project, mainly because we were often pair-programming or making quick, non-overlapping contributions. In a typical software engineering scenario, we’d create feature branches and open PRs for every change, but here we found it simpler to commit directly to `main` and resolve small merge conflicts as they arose. This approach worked for us because we maintained close communication and generally knew which files each person was modifying. But we do recognize the value of branching and PRs in larger teams or when changes are more substantial. In those cases, feature branches help isolate new functionality, and pull requests give people a chance to review and catch mistakes before merging. 
 
 --- question 9 fill here ---
 
@@ -270,6 +271,7 @@ Our coverage hovers around 70%. We’re focusing heavily on data utilities and c
 > *pipeline*
 >
 > Answer:
+Yes, we used DVC to version-control our processed dataset. Each time we changed our preprocessing, we committed the updated dataset with dvc add and pushed it to remote storage. That way, the code commit and the data version are aligned. If a bug was introduced by new data transformations, we had the ability to roll back both code and data. It also kept large files out of our Git repo, preventing ballooning repository sizes. Although we didn't use it much, having DVC track each dataset version is nice to have, so we can reproduce old experiments exactly.
 
 --- question 10 fill here ---
 
@@ -313,6 +315,9 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 > *We used a simple argparser, that worked in the following way: Python  my_script.py --lr 1e-3 --batch_size 25*
 >
 > Answer:
+We used Hydra to load YAML configs in our configs folder. For instance, train.py has a Hydra decorator that reads parameters like batch_size, lr, and max_epochs. To run an experiment, we can do something like:
+python src/mlops/train.py train.batch_size=8 train.lr=2e-5 train.max_epochs=3
+Hydra then overrides the default values in configs/config.yaml with those command-line arguments. This keeps our hyperparameters organized in one place and makes it simple to run multiple experiments with different settings, all while logging them in W&B.
 
 --- question 12 fill here ---
 
@@ -328,6 +333,7 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 > *one would have to do ...*
 >
 > Answer:
+First, we store all hyperparameters and paths in Hydra config files so we have a record of exactly how each experiment was run. Second, every run logs metrics, hyperparams, and artifacts to Weights & Biases. That gives us a versioned history of each experiment, including training curves, final model weights, and any config overrides. Third, we use DVC to version the data, so we can always roll back to the dataset used in a given run. Together, we make sure that we can replicate any experiment - we just check out the right Git commit, pull the matching dataset with DVC, and re-run the code using the same config.
 
 --- question 13 fill here ---
 
@@ -360,6 +366,9 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 > *training docker image: `docker run trainer:latest lr=1e-3 batch_size=64`. Link to docker file: <weblink>*
 >
 > Answer:
+We primarily containerized our FastAPI application using a file named **`api_local.dockerfile`** in the **`dockerfiles/`** folder. That Dockerfile sets up the environment, installs dependencies, and exposes port **8000**. Our **Docker Compose** file (**`docker-compose.yml`**) then orchestrates multiple containers at once: the API container, Prometheus for metrics scraping, Grafana for visualization, and Locust for load testing.
+When we run: docker compose up --build it builds the API image locally and spins up every service on a shared network, so Prometheus can scrape the API at api:8000/metrics, and Grafana can pull data from Prometheus. This lets all teammates launch an identical environment with the same Python libraries and OS packages.
+We don’t currently use a dedicated container for training, so our main focus has been deploying and monitoring the inference API in a reproducible manner. See our [Dockerfile](https://github.com/your-username/your-repo/blob/main/dockerfiles/api_local.dockerfile)
 
 --- question 15 fill here ---
 
@@ -392,6 +401,7 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 > *We used the following two services: Engine and Bucket. Engine is used for... and Bucket is used for...*
 >
 > Answer:
+We used Google Cloud Storage (GCS) for storing large datasets and model checkpoints via DVC, Google Cloud Build to automatically build Docker images when we push to main, and Secret Manager to store the Weights & Biases API key (retrieved in train.py). GCS replaced local storage for data files, Cloud Build integrated with our GitHub repo, and Secret Manager let us avoid hardcoding sensitive credentials.
 
 --- question 17 fill here ---
 
@@ -449,6 +459,7 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 > *was because ...*
 >
 > Answer:
+We did not fully train on Vertex AI or the Compute Engine. We tested smaller experiments on a local CPU for convenience. Vertex AI would provide a more scalable solution, but setting it up required extra budget and more environment configuration. We did, however, push some Docker images to our GCP registry that, in principle, could be run on Vertex AI custom jobs. The plan was to demonstrate local container-based training and then replicate that in the cloud if time allowed. In the end, local training was enough for our proof-of-concept, especially because our model was small and we chose to now use too much data to train on.
 
 --- question 22 fill here ---
 
@@ -466,6 +477,7 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 > *to the API to make it more ...*
 >
 > Answer:
+Yes, we built a FastAPI application (api.py) that loads our fine-tuned DistilGPT2 model. We set up a /infer endpoint, so users can post a JSON or form parameter prompt, and the model returns generated text. We also added /metrics using Prometheus Python client, which lets Prometheus scrape inference latencies, CPU usage, etc. We containerized the API in api_local.dockerfile, making it easy to spin up with Docker Compose. We also have the background thread **_start_system_metrics_collection** that collects system metrics (RAM, CPU, GPU memory) for each request. This makes us able track performance in real time, which is useful for debugging and general monitoring.
 
 --- question 23 fill here ---
 
@@ -482,6 +494,7 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 > *`curl -X POST -F "file=@file.json"<weburl>`*
 >
 > Answer:
+We only deployed the API **locally** using Docker Compose. After building our container image from **`api_local.dockerfile`**. So we spin up the FastAPI container plus Prometheus, Grafana, and Locust on a shared Docker network. The API listens on port 8000, Prometheus scrapes /metrics, and Grafana visualizes the collected metrics. Locust runs load tests against http://api:8000/infer to measure inference performance under different traffic scenarios. For our current project scope, this local setup is enough for demonstration and development. In principle, the same container could be deployed to a cloud service, but we haven’t done a fully managed deployment yet.
 
 --- question 24 fill here ---
 
@@ -497,6 +510,7 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 > *before the service crashed.*
 >
 > Answer:
+For unit testing, we rely on pytest with a `test_api.py` file to ensure the `"/infer"` endpoint returns a valid response, and we mock the underlying model to avoid loading large files every time. We also conducted a basic load test with Locust, using a script (`locust_tests.py`) that spawns a small number of simulated users (2–5). Each user selects random prompts and occasionally sets a `max_length` to see if our API can handle multiple requests concurrently. We didn’t push for high concurrency or specifically tune response times, since we’re running on CPU and mostly wanted to confirm the API wouldn’t crash under a modest load. Even under those limited conditions, requests completed in a reasonable time, which is fine for our current demo.
 
 --- question 25 fill here ---
 
@@ -512,6 +526,7 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 > *measure ... and ... that would inform us about this ... behaviour of our application.*
 >
 > Answer:
+Yes, we set up a local monitoring stack with Prometheus and Grafana. Our FastAPI app exposes a /metrics route via the prometheus_client library, which includes custom counters and gauges for training steps, validation loss, and inference latency. Prometheus scrapes this endpoint every five seconds, then stores the time-series metrics. Grafana reads from Prometheus, letting us visualize CPU usage, GPU memory, average inference time, and so on. We also tested the system under load with Locust, watching real-time dashboards in Grafana to see if latency spiked.
 
 --- question 26 fill here ---
 
@@ -547,6 +562,7 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 > *implemented using ...*
 >
 > Answer:
+We just did Grafana because it looked good, and the Great Expectations as our new package. We've been looking for a solution to continous monitoring and validation of data, so the Great Expectations was a good fit.
 
 --- question 28 fill here ---
 
@@ -578,6 +594,11 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 > *The biggest challenges in the project was using ... tool to do ... . The reason for this was ...*
 >
 > Answer:
+Our biggest challenge was integrating a wide range of tools—Docker, DVC, Prometheus, Grafana—while still keeping our code organized. Each service comes with its own configuration files (for instance, `docker-compose.yml`, `prometheus.yml`, and various Grafana provisioning JSONs), and we occasionally ran into version mismatches or Docker networking issues. For example, Prometheus sometimes failed to scrape the API because the container name or network alias wasn’t set up properly. We also discovered how important it is to leverage caching in Docker builds; otherwise, rebuilding images can take ages, especially when installing large packages.
+We also had a day-long detour dealing with Python version differences—some team members were on Python 3.12 and others on 3.11, causing library incompatibilities. In the end, we standardized on Python 3.11.9, which resolved most of those issues.
+
+TODO: Add something about google could being a b*tch
+
 
 --- question 30 fill here ---
 
@@ -596,5 +617,6 @@ We have one main GitHub Actions workflow called ci.yml. It runs on every push an
 > *All members contributed to code by...*
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
+Student s204510 set up the initial cookiecutter structure, wrote the Dockerfiles, and integrated Great Expectations for data validation. Student s204424 handled the CI/CD pipelines on GitHub Actions, plus the DVC linking to our bucket. Student s204470 focused on the FastAPI service, Prometheus instrumentation, and Grafana dashboards. We collaborated a bit on the small amount of training code we have, just to decidec which model we wanted to use. We occasionally used ChatGPT to brainstorm debugging approaches or understand error messages. We also used GitHub Copilot for small code suggestions in Python scripts. All final code was reviewed and tested by the group before merging.
 
 --- question 31 fill here ---

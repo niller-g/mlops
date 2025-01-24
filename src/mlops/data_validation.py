@@ -3,6 +3,7 @@ from typing import Dict, Any
 import great_expectations as ge
 from datasets import Dataset
 import pandas as pd
+from monitoring import MLOpsMetrics
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -10,6 +11,7 @@ logger = logging.getLogger(__name__)
 class DataValidator:
     def __init__(self):
         self.context = ge.get_context()
+        self.metrics = MLOpsMetrics(port=8001)  # Use different port than API
     
     def validate_dataset(self, dataset: Dataset, is_test_mode: bool = False) -> Dict[str, Any]:
         """
@@ -56,6 +58,11 @@ class DataValidator:
                     max_value=1000000  # Reasonable upper limit
                 )
             )
+        
+        # Record validation results in Prometheus
+        for exp in expectations:
+            check_name = exp.expectation_config["expectation_type"]
+            self.metrics.record_validation_check(check_name, exp.success)
         
         # Compile results
         validation_results = {
